@@ -23,8 +23,9 @@ class Cproject {
 public:
     // attributes
     bool debug;
+    bool cpp;
     std::string name;
-    std::string cppversion;
+    std::string c_version;
     std::string cwd;
     std::vector<App> apps;
     std::vector<App> depends;

@@ -4,10 +4,9 @@
 
 using namespace std;
 int main(){
-    
-    for(
-        string i : ls(get_current_dir_name())
-    ){
+    vector<string> asc = ls(get_current_dir_name());
+
+    for(string i : asc){
         cout<<i<<endl;
     }
 }

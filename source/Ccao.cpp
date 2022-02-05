@@ -15,27 +15,19 @@ Cproject::Cproject(){
 }
 
 App::App(std::string name,std::string cwd){
-    std::vector<std::string> headers;
-    std::vector<std::string> source;
     std::vector<std::string> temp;
     
     this->name = name;
-    headers = ls(cwd+"apps"+name+"headers");
-    source = ls(cwd+"apps"+name+"source");
+    this->headers = ls(cwd+"apps"+name+"headers");
+    this->source = ls(cwd+"apps"+name+"source");
 
     // 判断目录为不为空
     if(
-        (headers.size() == 2) and (source.size() == 2)
+        (this->headers.size() == 0) and (this->source.size() == 0)
     ){
         this->blank=true;
     }else{
-        // 删除 . 以及 ..
-        headers.erase(headers.begin(),headers.begin()+2);
-        source.erase(source.begin(),source.begin()+2);
-        
         this->blank=false;
-        this->headers=headers;
-        this->source=source;
     }
 
 
@@ -62,7 +54,11 @@ std::vector<std::string> ls(std::string path){
         ((dirp=readdir(dp))!=NULL)
     )
     {
-        dirs.push_back(dirp->d_name);
+        if(
+            (dirp->d_name != std::string(".") and dirp->d_name != std::string(".."))
+        ){
+            dirs.push_back(dirp->d_name);
+        }
     }
     closedir(dp);
     return dirs;
