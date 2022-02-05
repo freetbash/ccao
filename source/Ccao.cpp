@@ -15,8 +15,34 @@ Cproject::Cproject(){
 }
 
 App::App(std::string name,std::string cwd){
-    // 你打算 完成这个函数
+    std::vector<std::string> headers;
+    std::vector<std::string> source;
+    std::vector<std::string> temp;
     
+    this->name = name;
+    headers = ls(cwd+"apps"+name+"headers");
+    source = ls(cwd+"apps"+name+"source");
+
+    // 判断目录为不为空
+    if(
+        (headers.size() == 2) and (source.size() == 2)
+    ){
+        this->blank=true;
+    }else{
+        // 删除 . 以及 ..
+        headers.erase(headers.begin(),headers.begin()+2);
+        source.erase(source.begin(),source.begin()+2);
+        
+        this->blank=false;
+        this->headers=headers;
+        this->source=source;
+    }
+
+
+
+
+
+
 }
 
 std::vector<std::string> ls(std::string path){
