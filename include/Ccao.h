@@ -3,17 +3,13 @@
 #include <vector>
 #include <string>
 
-
+// error id -4
 #define __CCAO__H
 #define APP 1
 #define DEPEND 0
+#define VERSION "0.01"
 
-class DataSet{
-public:
-    Cconfig *config;
-    Cproject *project;
-    DataSet(Cproject *project,Cconfig *config);
-};
+
 
 class Cconfig{
 public:
@@ -56,21 +52,35 @@ public:
     Cproject(Cconfig config);
 };
 
+class DataSet{
+public:
+    Cconfig *config;
+    Cproject *project;
+    DataSet(Cproject *project,Cconfig *config);
+};
 
-
-std::vector<std::string> ls(std::string path);
 
 class Cmd{
 public:
+    bool isProject;
     std::string op;
     std::vector<std::string> args;
     DataSet *dsp;
-    Cmd(int argc,char *argv[],DataSet *dsp);
+    Cmd(int argc,char *argv[]);
     void compare();
-    void newproject(DataSet *dsp);// ccao new project_name
-    void newapp(DataSet *dsp);// ccao new app app_name
-    void build(DataSet *dsp);// ccao build && ccao build release
-    void collect_depends(DataSet *dsp);// ccao collect
+    void newproject(std::string project_name);// ccao new project_name
+    void newapp(std::string app_name);// ccao new app app_name
+    void build();// ccao build 
+    void collect_depends();// ccao collect
+    void show_help();// show help
+    void version();
+    void export_app();
+    void check_status();
+private:
+    void init(DataSet *dsp);
 };
-
+// tools
+void start();
+std::vector<std::string> ls(std::string path);
+bool file_exist(std::string filename);
 #endif

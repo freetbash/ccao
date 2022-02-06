@@ -38,6 +38,7 @@
         "forward_list": "cpp",
         "iomanip": "cpp",
         "numeric": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "algorithm": "cpp"
     }
 }
