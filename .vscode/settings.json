@@ -39,6 +39,7 @@
         "iomanip": "cpp",
         "numeric": "cpp",
         "ratio": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "random": "cpp"
     }
 }

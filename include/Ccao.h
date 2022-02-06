@@ -81,6 +81,7 @@ private:
 };
 // tools
 void start();
+void log(std::string msg);
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);
 #endif

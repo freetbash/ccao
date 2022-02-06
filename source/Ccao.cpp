@@ -15,10 +15,9 @@ Cmd::Cmd(int argc,char *argv[]){
         this->init(dsp);
     }
     
-    int i;
-    std::cout<<i<<std::endl;
-    if (i<2) {
-        std::cout<<"Please enter 'ccao help' to check your args.";
+    std::cout<<argc<<std::endl;
+    if (argc<2) {
+        std::cout<<"Please enter 'ccao help' to check your args."<<std::endl;
         exit(-3);
     }
     // ccao     new     app         app_name
@@ -26,16 +25,26 @@ Cmd::Cmd(int argc,char *argv[]){
     //          op      vector[0]   vector[1]
     this->op=argv[1];
     
-    for (i = 2; i<argc; i++){
+    for (int i = 2; i<argc; i++){
         this->args.push_back(argv[i]);
     }
     
 }
 
 void Cmd::compare(){
+    log(this->op);
     if(this->op == "new"){
             // new project
         if(this->args.size() == 1 ){
+            // 这里 有 大 问题
+            /**
+             *  ./ccao new qwe
+                3
+                3
+                new
+                [1]    29982 segmentation fault  ./ccao new qwe
+             * 
+             */
             this->newproject(this->args[1]);
         }
             // new app
@@ -335,6 +344,10 @@ void start(){
         exit(-3);
     }
 
+}
+
+void log(std::string msg){
+    std::cout<<msg<<std::endl;
 }
 
 bool file_exist(std::string filename){
