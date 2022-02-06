@@ -1,12 +1,12 @@
 #include "../include/Ccao.h"
+#include "../include/toml.hpp"
 #include <unistd.h>
 #include <iostream>
 
 using namespace std;
-int main(){
-    vector<string> asc = ls(get_current_dir_name());
+int main(int argc, char *argv[]){
 
-    for(string i : asc){
-        cout<<i<<endl;
-    }
+    cout<<argv[1]<<endl;
+    return 0;
+
 }
