@@ -1,5 +1,5 @@
 [project]
-name="source"
+name="v231"
 #version=0.01
 cppversion="c++11"
 debug=true
@@ -8,5 +8,5 @@ apps=[
     #"app1",
 ]
 depends=[
-    #"1$version",
+    #"1$version"
 ]

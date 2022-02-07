@@ -2,12 +2,13 @@
 #include <iostream>
 int main(int argc, char *argv[]){
     Cconfig config;
-    Cproject project(config);
-    DataSet *dsp;
-    dsp->config=&config;
-    dsp->project=&project;
-    
-    Cmd cmd = Cmd(argc,argv);
+    DataSet *dsp=NULL;
+    if(config.isProject){
+        Cproject project(&config);
+        dsp=new DataSet(&project,&config);
+    }
+
+    Cmd cmd = Cmd(argc,argv,dsp);
     // argc 传递有问题
     cmd.compare();
 }

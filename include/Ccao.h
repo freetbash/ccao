@@ -17,6 +17,7 @@ public:
     // attributes
     bool cpp;
     bool debug;
+    bool isProject;
     std::string root;
     std::string name;
     std::string cppversion;
@@ -50,7 +51,7 @@ public:
     std::vector<App> depends;
     Cconfig *config;
     // methods
-    Cproject(Cconfig config);
+    Cproject(Cconfig *config);
 };
 
 class DataSet{
@@ -63,11 +64,10 @@ public:
 
 class Cmd{
 public:
-    bool isProject;
     std::string op;
     std::vector<std::string> args;
     DataSet *dsp;
-    Cmd(int argc,char *argv[]);
+    Cmd(int argc,char *argv[],DataSet *dsp);
     void compare();
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
@@ -77,8 +77,7 @@ public:
     void version();
     void export_app();
     void check_status();
-private:
-    void init(DataSet *dsp);
+
 };
 // tools
 void start();

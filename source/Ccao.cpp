@@ -9,18 +9,13 @@
 #include <sstream>
 #include <fstream>
 
-extern DataSet *dsp;
-Cmd::Cmd(int argc,char *argv[]){
+Cmd::Cmd(int argc,char *argv[],DataSet *dsp){
     if (argc<2) {
         std::cout<<"Please enter 'ccao help' to check your args."<<std::endl;
         exit(-3);
     }
 
-    this->isProject=file_exist("ccao.toml");
-
-    if(!this->isProject){
-        this->init(dsp);
-    }
+    this->dsp=dsp;    
     
     // ccao     new     app         app_name
     // agrv[0]  argv[1] argv[2]     argv[3]
@@ -80,7 +75,7 @@ void Cmd::export_app(){}
 
 void Cmd::check_status(){
     // 检查是否为 工程目录
-    if(!this->isProject){
+    if(!this->dsp->config->isProject){
         std::cout<<"[-] You can't execute this operation, because this folder is not a Ccao project."<<std::endl;
         exit(-4);
     }
@@ -200,12 +195,9 @@ depends=[
     std::cout<<"[+] new "<<project_name<<" Ok!"<<std::endl;
 }   
 
-void Cmd::init(DataSet *dsp){
-    this->dsp=dsp;
-}
 
 void Cmd::newapp(std::string app_name){
-
+ // 你打算 开发 new app
 }
 
 void Cmd::build(){}
@@ -213,7 +205,8 @@ void Cmd::build(){}
 void Cmd::collect_depends(){}
 
 Cconfig::Cconfig(){
-    
+    // 判断是否为工程项目
+    this->isProject=file_exist("ccao.toml");
     // init root
     char *path = get_current_dir_name();
     if(path!=NULL){
@@ -222,6 +215,8 @@ Cconfig::Cconfig(){
         std::cout<<"[-]Your absolute path isn't setted successfully!\n [-]Please check your permissions. "<<std::endl;
         exit(-1);
     }
+
+    if(!this->isProject){return;} // 这里可是个关键
 
     std::string ccao = this->root + "/ccao.toml";
     const toml::value data=toml::parse(ccao);
@@ -268,7 +263,7 @@ App::App(std::string name,std::string root,int type){
         this->headers = ls(root+"/apps/"+name+"/headers");
         this->source = ls(root+"/apps/"+name+"/source");
     }
-
+    log("test");
     if(this->type == DEPEND){
         this->headers = ls(root+"/depends/"+name+"/headers");
         this->source = ls(root+"/depends/"+name+"/source");
@@ -279,15 +274,16 @@ App::App(std::string name,std::string root,int type){
         (this->headers.size() == 0) and (this->source.size() == 0)
     ){
         this->blank=true;
+
     }else{
         this->blank=false;
     }
 
 }
 
-Cproject::Cproject(Cconfig config){
+Cproject::Cproject(Cconfig *config){
     
-    this->config = &config;
+    this->config = config;
     this->main = App(this->config->name,this->config->root,APP);// 最终要生成的可执行文件
 
     for (std::string app :this->config->apps){
