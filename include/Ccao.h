@@ -4,6 +4,7 @@
 #include <string>
 
 // error id -4
+// Ok id 9
 #define __CCAO__H
 #define APP 1
 #define DEPEND 0
@@ -81,6 +82,7 @@ private:
 };
 // tools
 void start();
+void check_error(int status);
 void log(std::string msg);
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);

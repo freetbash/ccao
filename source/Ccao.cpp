@@ -2,6 +2,7 @@
 #include "../include/toml.hpp"
 #include <unistd.h>
 #include <dirent.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h> 
 #include <iostream>
@@ -10,16 +11,17 @@
 
 extern DataSet *dsp;
 Cmd::Cmd(int argc,char *argv[]){
-    this->isProject=file_exist("ccao.toml");
-    if(!this->isProject){
-        this->init(dsp);
-    }
-    
-    std::cout<<argc<<std::endl;
     if (argc<2) {
         std::cout<<"Please enter 'ccao help' to check your args."<<std::endl;
         exit(-3);
     }
+
+    this->isProject=file_exist("ccao.toml");
+
+    if(!this->isProject){
+        this->init(dsp);
+    }
+    
     // ccao     new     app         app_name
     // agrv[0]  argv[1] argv[2]     argv[3]
     //          op      vector[0]   vector[1]
@@ -32,51 +34,46 @@ Cmd::Cmd(int argc,char *argv[]){
 }
 
 void Cmd::compare(){
-    log(this->op);
+    log("[*] op: "+this->op);
     if(this->op == "new"){
             // new project
         if(this->args.size() == 1 ){
-            // 这里 有 大 问题
-            /**
-             *  ./ccao new qwe
-                3
-                3
-                new
-                [1]    29982 segmentation fault  ./ccao new qwe
-             * 
-             */
-            this->newproject(this->args[1]);
+            this->newproject(this->args[0]);
+            exit(8);
         }
             // new app
         if(this->args.size() == 2 and this->args[0] == "app"){
             this->check_status();
             this->newapp(this->args[1]);
+            exit(9);
         }
-        return;
+        exit(7);
     }
     if(this->op == "help"){
         this->show_help();
-        return;
+        exit(1);
     }
     if(this->op == "version"){
         this->version();
-        return;
+        exit(2);
     }
     if(this->op == "build" and this->args.size() == 0){
         this->check_status();
         this->build();
-        return;
+        exit(3);
     }
     if(this->op == "collect" and this->args.size() ==0){
         this->check_status();
         this->collect_depends();
-        return;
+        exit(4);
     }
     if(this->op == "export_app" and this->args.size() ==1){
         this->check_status();
         this->export_app();//你还没有完成
+        exit(5);
     }
     this->show_help();
+    exit(6);
 }
 
 void Cmd::export_app(){}
@@ -90,8 +87,7 @@ void Cmd::check_status(){
 }
 
 void Cmd::show_help(){
-    std::string help_text = R""(
-usage: ccao <command> [<args>]
+    std::string help_text = R""(usage: ccao <command> [<args>]
 
 All commands:
     build       // build your all apps and your main function. Please check your debug of ccao.toml
@@ -112,6 +108,7 @@ Author:
     Here is my email : 3141495167@qq.com 
 
     )"";
+    std::cout<<help_text<<std::endl;
 }
 
 void Cmd::version(){
@@ -119,12 +116,15 @@ void Cmd::version(){
 }
 
 void Cmd::newproject(std::string project_name){
+    int status;
     std::string cwd=std::string(get_current_dir_name());
     cwd = cwd + "/" + project_name;
+    // Porject
+    check_error(mkdir(cwd.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
     // Main App
-    std::string main_app = cwd+project_name;
-        mkdir(main_app.c_str(),S_IRUSR|S_IWUSR);
-        mkdir((main_app+"/headers").c_str(),S_IRUSR|S_IWUSR);
+    std::string main_app = cwd+ "/"+project_name;
+        check_error(mkdir(main_app.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+        check_error(mkdir((main_app+"/headers").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
             std::ofstream hello;
             hello.open(
                 (main_app+"/headers/hello.h"),std::ios::out
@@ -136,7 +136,7 @@ void hello_world();
 
 #endif)"";}
             hello.close();
-        mkdir((main_app+"/source").c_str(),S_IRUSR|S_IWUSR);
+        check_error(mkdir((main_app+"/source").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
             std::ofstream main;
             main.open(
                 (main_app+"/source/main.cpp"),std::ios::out
@@ -159,28 +159,28 @@ int main(int argc, char *argv[]){
             main.close();
     
     // Apps
-    mkdir((cwd+"/apps").c_str(),S_IRUSR|S_IWUSR);
+    check_error(mkdir((cwd+"/apps").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
     
     // Depends
-    mkdir((cwd+"/depends").c_str(),S_IRUSR|S_IWUSR);
+    check_error(mkdir((cwd+"/depends").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
     
     // out
-    mkdir((cwd+"/out").c_str(),S_IRUSR|S_IWUSR);
+    check_error(mkdir((cwd+"/out").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
         // debug
-        mkdir((cwd+"/out/debug").c_str(),S_IRUSR|S_IWUSR);
-            mkdir((cwd+"/out/debug/bin").c_str(),S_IRUSR|S_IWUSR);
-            mkdir((cwd+"/out/debug/libs").c_str(),S_IRUSR|S_IWUSR);
-                mkdir((cwd+"/out/debug/libs/own").c_str(),S_IRUSR|S_IWUSR);
-                mkdir((cwd+"/out/debug/libs/other").c_str(),S_IRUSR|S_IWUSR);
+        check_error(mkdir((cwd+"/out/debug").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+            check_error(mkdir((cwd+"/out/debug/bin").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+            check_error(mkdir((cwd+"/out/debug/libs").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+                check_error(mkdir((cwd+"/out/debug/libs/own").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+                check_error(mkdir((cwd+"/out/debug/libs/other").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
         // release
-        mkdir((cwd+"/out/release").c_str(),S_IRUSR|S_IWUSR);
-            mkdir((cwd+"/out/release/bin").c_str(),S_IRUSR|S_IWUSR);
-            mkdir((cwd+"/out/release/libs").c_str(),S_IRUSR|S_IWUSR);
-                mkdir((cwd+"/out/release/libs/own").c_str(),S_IRUSR|S_IWUSR);
-                mkdir((cwd+"/out/release/libs/other").c_str(),S_IRUSR|S_IWUSR);
+        check_error(mkdir((cwd+"/out/release").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+            check_error(mkdir((cwd+"/out/release/bin").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+            check_error(mkdir((cwd+"/out/release/libs").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+                check_error(mkdir((cwd+"/out/release/libs/own").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+                check_error(mkdir((cwd+"/out/release/libs/other").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
     // ccao.toml
     std::ofstream ccao;
-    ccao.open(cwd+"ccao.toml",std::ios::out);
+    ccao.open(cwd+"/ccao.toml",std::ios::out);
     std::stringstream fmt;
     {fmt << R""([project]
 name=")""<<project_name<<R""("
@@ -204,7 +204,9 @@ void Cmd::init(DataSet *dsp){
     this->dsp=dsp;
 }
 
-void Cmd::newapp(std::string app_name){}
+void Cmd::newapp(std::string app_name){
+
+}
 
 void Cmd::build(){}
 
@@ -263,13 +265,13 @@ App::App(std::string name,std::string root,int type){
     this->name = name;
     // 根据类型初始化
     if(this->type == APP){
-        this->headers = ls(root+"apps"+name+"headers");
-        this->source = ls(root+"apps"+name+"source");
+        this->headers = ls(root+"/apps/"+name+"/headers");
+        this->source = ls(root+"/apps/"+name+"/source");
     }
 
     if(this->type == DEPEND){
-        this->headers = ls(root+"depends"+name+"headers");
-        this->source = ls(root+"depends"+name+"source");
+        this->headers = ls(root+"/depends/"+name+"/headers");
+        this->source = ls(root+"/depends/"+name+"/source");
     }
 
     // 判断目录为不为空
@@ -343,7 +345,12 @@ void start(){
         std::cout<<"[-] Please ensure you are root or sudors ,because you don't have access to operate this folder"<<std::endl;
         exit(-3);
     }
+}
 
+void check_error(int status){
+    if(status<0){
+        std::cout<<"[-] "<<strerror(errno)<<std::endl;
+    }
 }
 
 void log(std::string msg){

@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-    struct stat buffer;
-    cout << (stat ("1.2h",&buffer) ==0)<<endl;
+    
+    cout<<mkdir("/home/bash/ccao/test/123",S_IRUSR|S_IWUSR)<<endl;
     return 0;
 }

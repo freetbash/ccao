@@ -1,0 +1,16 @@
+[project]
+name="ccao"
+#version=0.01
+cppversion="c++11"
+debug=true
+cpp=true
+apps=[
+    "app1",
+    "app2",
+    "app3"
+]
+depends=[
+    "1$version",
+    "2$version",
+    "3$version"
+]

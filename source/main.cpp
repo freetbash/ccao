@@ -1,9 +1,13 @@
 #include "../include/Ccao.h"
 #include <iostream>
 int main(int argc, char *argv[]){
-    std::cout<<argc<<std::endl;
+    Cconfig config;
+    Cproject project(config);
+    DataSet *dsp;
+    dsp->config=&config;
+    dsp->project=&project;
+    
     Cmd cmd = Cmd(argc,argv);
-    DataSet *dsp=NULL;
     // argc 传递有问题
     cmd.compare();
 }

@@ -1,0 +1,1 @@
+g++ -g -std=c++11  source/main.cpp source/Ccao.cpp -I include -o ca_d
