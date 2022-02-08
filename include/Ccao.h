@@ -10,16 +10,18 @@
 #define DEPEND 0
 #define VERSION "0.01"
 
-
+// 一部分 设置 放在这里好调用
+extern bool debug;
+extern std::string root;
+extern bool dynamic_app;
+extern bool dynamic_depend;
+extern bool cpp;
+extern bool isProject;
 
 class Cconfig{
 public:
     // attributes
-    bool cpp;
-    bool dynamic;
-    bool debug;
-    bool isProject;
-    std::string root;
+    // root or debug 在Ccao.cpp中
     std::string name;
     std::string cppversion;
     std::vector<std::string> apps;
@@ -43,8 +45,8 @@ public:
     // methods
     App();
     App(void *project);
-    App(std::string name,std::string root,int type);
-    void build(std::vector<std::string> cmds);// 构建自己
+    App(std::string name,int type);
+    void build(std::string cflag);// 构建自己
 };
 
 
@@ -77,7 +79,7 @@ public:
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
     void build();// ccao build 
-    void collect_depends();// ccao collect
+    void collect_depends();// ccao collect????? 还未开发
     void show_help();// show help
     void version();
     void export_app();

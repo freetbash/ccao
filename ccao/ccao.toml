@@ -4,14 +4,11 @@ name="ccao"
 cppversion="c++11"
 debug=true
 cpp=true# g++ or gcc
-dynamic=false #生成 .a 而不是 .so
+dynamic_app=true #生成 .so 而不是 .a
+dynamic_depend=true #
 apps=[
-    "app1",
-    "app2",
-    "app3"
+    #"app1",
 ]
 depends=[
-    "1$version",
-    "2$version",
-    "3$version"
+    #"1$version"
 ]

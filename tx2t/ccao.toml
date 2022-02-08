@@ -1,0 +1,14 @@
+[project]
+name="tx2t"
+#version=0.01
+cppversion="c++11"
+debug=true
+cpp=true# g++ or gcc
+dynamic_app=true #生成 .so 而不是 .a
+dynamic_depend=true #
+apps=[
+    #"app1",
+]
+depends=[
+    #"1$version"
+]

@@ -3,13 +3,20 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include<stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h> 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 
-extern bool debug;
+// 一部分 设置 放在这里好调用
+bool debug;
+std::string root;
+bool dynamic_app;
+bool dynamic_depend;
+bool cpp;
+bool isProject;
 
 Cmd::Cmd(int argc,char *argv[],DataSet *dsp){
     if (argc<2) {
@@ -83,7 +90,7 @@ void Cmd::export_app(){}
 
 void Cmd::check_status(){
     // 检查是否为 工程目录
-    if(!this->dsp->config->isProject){
+    if(!isProject){
         std::cout<<"[-] You can't execute this operation, because this folder is not a Ccao project."<<std::endl;
         exit(-4);
     }
@@ -193,7 +200,8 @@ name=")""<<project_name<<R""("
 cppversion="c++11"
 debug=true
 cpp=true# g++ or gcc
-dynamic=false #生成 .a 而不是 .so
+dynamic_app=true #生成 .so 而不是 .a
+dynamic_depend=true #
 apps=[
     #"app1",
 ]
@@ -209,7 +217,7 @@ depends=[
 
 void Cmd::newapp(std::string app_name){
  // 你打算 开发 new app
-    std::string app_dir = this->dsp->config->root+"/apps/"+app_name;
+    std::string app_dir = root+"/apps/"+app_name;
     if (file_exist(app_dir)){
         log("[-] The '"+app_name+"' has been created!");
         exit(-5);
@@ -224,26 +232,84 @@ void Cmd::newapp(std::string app_name){
 }
 
 void Cmd::build(){
-    std::vector<std::string> cmds;
-    std::string dynamic="";
-    std::string debug_op = "-g -Wall -fPIC -std="+this->dsp->config->cppversion;
+
+    // 保持同一 前面不留空格 后面留   很重要
+    // debug 模式 默认 或 dynamic 为 true生成 .so
+    std::string cflag = "";
     // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
-    if(!debug){
-        debug_op ="-fPIC -std="+this->dsp->config->cppversion;;
+    // gcc -fPIC -shared xxx.c -o libxxx.so
+    if(debug){
+        cflag ="-g -Wall ";
     }
-
-    if(this->dsp->config->dynamic){
-        cmds.push_back(debug_op);
+    cflag+="-std="+this->dsp->config->cppversion+" ";// c++11
+    if(dynamic_app){
+        cflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
     }else{
-
+        cflag="-c ";
     }
 
+    // build depends
+    for(App depend :this->dsp->project->depends){
+        depend.build(cflag);
+        // 是否 要生成 .a 库？
+    }
+    log(
+        "[+]All depends "+(this->dsp->project->depends.size())
+    );
+
+    // build your apps
     for(App app :this->dsp->project->apps){
-        app.build(cmds);
+        app.build(cflag);
+    }
+    log(
+        "[+]All apps "+(this->dsp->project->apps.size())
+    );
+
+    // build main_app 
+
+    // 头文件目录
+    std::string include_path = 
+        root+"/"+this->dsp->config->name+" "
+        +root+"/apps "
+        +root+"/depends "
+    ;
+    // 库目录
+    std::string libray_path;
+    if(debug){
+        libray_path = root+"/out/debug/libs ";
+    }else{
+        libray_path = root+"/out/release/libs ";
+    }
+    //源码
+    std::string source;
+    log(this->dsp->project->main.source[0]);
+    for(std::string c_cpp :this->dsp->project->main.source){
+        source += root+"/"+c_cpp+" ";
+    }
+    // 将c cpp 路径 拼接到一起
+    std::string compiler;
+    if(cpp){
+        compiler="g++ ";
+    }else{
+        compiler="gcc ";
     }
 
-    // build main_app
-    check_error(system(""));
+    std::string cmd(
+        compiler
+        +source
+        +cflag
+        +"I "
+        +include_path
+        +"L "
+        +libray_path
+        +"-o "
+        +this->dsp->project->main.out_path+"/"
+        +this->dsp->project->main.name
+    );
+    log("[*] "+cmd);
+    check_error(system(cmd.c_str()));
+
+    log("[+] Main : "+this->dsp->project->main.name+" build ......Ok!");
 
 
 }
@@ -252,19 +318,19 @@ void Cmd::collect_depends(){}
 
 Cconfig::Cconfig(){
     // 判断是否为工程项目
-    this->isProject=file_exist("ccao.toml");
+    isProject=file_exist("ccao.toml");
     // init root
     char *path = get_current_dir_name();
     if(path!=NULL){
-        this->root=path;
+        root=path;
     }else{
         std::cout<<"[-]Your absolute path isn't setted successfully!\n [-]Please check your permissions. "<<std::endl;
         exit(-1);
     }
 
-    if(!this->isProject){return;} // 这里可是个关键
+    if(!isProject){return;} // 这里可是个关键
 
-    std::string ccao = this->root + "/ccao.toml";
+    std::string ccao = root + "/ccao.toml";
     const toml::value data=toml::parse(ccao);
 
     // 配置[project]
@@ -281,11 +347,11 @@ Cconfig::Cconfig(){
         <std::vector<std::string>>
     (project_data,"depends");
     // gcc or g++
-    this->cpp = toml::find
+    cpp = toml::find
         <bool>
     (project_data,"cpp");
 
-    this->debug = toml::find
+        debug = toml::find
         <bool>
     (project_data,"debug");
 
@@ -293,23 +359,33 @@ Cconfig::Cconfig(){
         <std::string>
     (project_data,"cppversion");
 
-    this->dynamic = toml::find
+    dynamic_app = toml::find
         <bool>
-    (project_data,"dynamic");
+    (project_data,"dynamic_app");
+
+    dynamic_depend = toml::find
+        <bool>
+    (project_data,"dynamic_depend");
 
 
 
 
 }
+
 App::App(){}
 App::App(void *project){
     Cproject *fuck_project = (Cproject *)project;
     std::vector<std::string> temp;
 
+    this->out_path = "/out/debug/bin";
+    if (!debug){
+        this->out_path = "/out/release/bin";
+    }
+
     this->type=APP;
     this->name = fuck_project->config->name;
-        this->headers = ls(fuck_project->config->root+"/"+this->name+"/headers");
-        this->source = ls(fuck_project->config->root+"/"+this->name+"/source");
+        this->headers = ls(root+"/"+this->name+"/headers");
+        this->source = ls(root+"/"+this->name+"/source");
 
 
     // 判断目录为不为空
@@ -323,7 +399,7 @@ App::App(void *project){
     }
 
 };
-App::App(std::string name,std::string root,int type){
+App::App(std::string name,int type){
     std::vector<std::string> temp;
 
     std::string build_out_path = "/out/debug/libs";
@@ -360,12 +436,59 @@ App::App(std::string name,std::string root,int type){
 
 }
 
-void build(std::vector<std::string> cmds){
-    for (std::string cmd : cmds){
-
+void App::build(std::string cflag){
+    if(this->blank){
+        log("[*] "+this->name+"is blank, it isn't be build !");
+        return;
+        }
+    std::string source;
+    // 将c cpp 路径 拼接到一起
+    std::string compiler;
+    if(cpp){
+        compiler="g++ ";
+    }else{
+        compiler="gcc ";
     }
 
+    std::string cmd(
+            compiler
+            +source
+            +cflag
+            +"-I "
+            +root+"/apps "
+            +"-o "
+    ); // 最终生成的命令
 
+    for(std::string c_cpp :this->source){
+        source += this->path+"/"+c_cpp+" ";
+    }
+
+    if(dynamic_app){ // debug 已经在Cmd::build里面控制过了
+        // -g -Wall -fPIC  (or) -fPIC
+        cmd+=this->out_path+"/lib"+this->name+".so.0";
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+    }else{
+        // -c 
+        cmd+=root+"/out/temp/"+this->name+".o";
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+        // ar -rc libxxx.a xxx.o
+        cmd = 
+            "ar -rc "
+            +this->out_path+"/lib"+this->name+".a "
+            +root+"/out/temp/"+this->name+".o"
+        ;
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+    }
+    std::string type;
+    if(this->type==APP){
+        type="App";
+    }else{
+        type="Depend";
+    }
+    log("[+] "+type+": "+this->name+" build ......Ok!");
 }
 
 
@@ -376,13 +499,13 @@ Cproject::Cproject(Cconfig *config){
 
     for (std::string app :this->config->apps){
         this->apps.push_back(
-            App(app,this->config->root,APP)
+            App(app,APP)
         );
     }
 
     for (std::string depend :this->config->depends){
         this->depends.push_back(
-            App(depend,this->config->root,DEPEND)
+            App(depend,DEPEND)
         );
     }
 
@@ -394,7 +517,7 @@ DataSet::DataSet(Cproject *project,Cconfig *config){
 }
 
 
-
+// tools
 std::vector<std::string> ls(std::string path){
     DIR *dp;
     std::vector<std::string> dirs;
@@ -431,9 +554,11 @@ void start(){
         exit(-3);
     }
 }
+
 void c_mkdir(std::string path){
     check_error(mkdir(path.c_str(),0775));
 }
+
 void check_error(int status){
     if(status<0){
         std::cout<<"[-] "<<strerror(errno)<<std::endl;
