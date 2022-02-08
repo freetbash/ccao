@@ -29,24 +29,29 @@ Cmd::Cmd(int argc,char *argv[],DataSet *dsp){
 }
 
 void Cmd::compare(){
-    log("[*] op: "+this->op);
+    
     if(this->op == "new"){
+
             // new project
         if(this->args.size() == 1 ){
+            if(this->args[0] == "app"){
+                std::cout<<"[-] You can't use the 'app' as your project_name"<<std::endl;
+                std::cout<<"[*] (Tip~)$ ccao new app app_name"<<std::endl;
+                exit(7);
+            }
             this->newproject(this->args[0]);
-            exit(8);
+            exit(7);
         }
+
             // new app
         if(this->args.size() == 2 and this->args[0] == "app"){
             this->check_status();
             this->newapp(this->args[1]);
-            exit(9);
+            exit(8);
         }
-        exit(7);
     }
     if(this->op == "help"){
-        this->show_help();
-        exit(1);
+        // 跳过就好
     }
     if(this->op == "version"){
         this->version();
@@ -68,7 +73,8 @@ void Cmd::compare(){
         exit(5);
     }
     this->show_help();
-    exit(6);
+    log("[*] op: "+this->op);
+    exit(1);
 }
 
 void Cmd::export_app(){}
@@ -115,11 +121,11 @@ void Cmd::newproject(std::string project_name){
     std::string cwd=std::string(get_current_dir_name());
     cwd = cwd + "/" + project_name;
     // Porject
-    check_error(mkdir(cwd.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+    c_mkdir(cwd);
     // Main App
     std::string main_app = cwd+ "/"+project_name;
-        check_error(mkdir(main_app.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-        check_error(mkdir((main_app+"/headers").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+        c_mkdir(main_app);
+        c_mkdir((main_app+"/headers"));
             std::ofstream hello;
             hello.open(
                 (main_app+"/headers/hello.h"),std::ios::out
@@ -131,7 +137,7 @@ void hello_world();
 
 #endif)"";}
             hello.close();
-        check_error(mkdir((main_app+"/source").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+        c_mkdir((main_app+"/source"));
             std::ofstream main;
             main.open(
                 (main_app+"/source/main.cpp"),std::ios::out
@@ -154,25 +160,25 @@ int main(int argc, char *argv[]){
             main.close();
     
     // Apps
-    check_error(mkdir((cwd+"/apps").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+    c_mkdir((cwd+"/apps"));
     
     // Depends
-    check_error(mkdir((cwd+"/depends").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+    c_mkdir((cwd+"/depends"));
     
     // out
-    check_error(mkdir((cwd+"/out").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+    c_mkdir((cwd+"/out"));
         // debug
-        check_error(mkdir((cwd+"/out/debug").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-            check_error(mkdir((cwd+"/out/debug/bin").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-            check_error(mkdir((cwd+"/out/debug/libs").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-                check_error(mkdir((cwd+"/out/debug/libs/own").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-                check_error(mkdir((cwd+"/out/debug/libs/other").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+        c_mkdir((cwd+"/out/debug"));
+            c_mkdir((cwd+"/out/debug/bin"));
+            c_mkdir((cwd+"/out/debug/libs"));
+                c_mkdir((cwd+"/out/debug/libs/own"));
+                c_mkdir((cwd+"/out/debug/libs/other"));
         // release
-        check_error(mkdir((cwd+"/out/release").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-            check_error(mkdir((cwd+"/out/release/bin").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-            check_error(mkdir((cwd+"/out/release/libs").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-                check_error(mkdir((cwd+"/out/release/libs/own").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
-                check_error(mkdir((cwd+"/out/release/libs/other").c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IXOTH));
+        c_mkdir((cwd+"/out/release"));
+            c_mkdir((cwd+"/out/release/bin"));
+            c_mkdir((cwd+"/out/release/libs"));
+                c_mkdir((cwd+"/out/release/libs/own"));
+                c_mkdir((cwd+"/out/release/libs/other"));
     // ccao.toml
     std::ofstream ccao;
     ccao.open(cwd+"/ccao.toml",std::ios::out);
@@ -198,6 +204,18 @@ depends=[
 
 void Cmd::newapp(std::string app_name){
  // 你打算 开发 new app
+    std::string app_dir = this->dsp->config->root+"/apps/"+app_name;
+    if (file_exist(app_dir)){
+        log("[-] The '"+app_name+"' has been created!");
+        exit(-5);
+        
+    }
+    c_mkdir(app_dir);
+    // headers
+    c_mkdir(app_dir+"/headers");
+    // source
+    c_mkdir(app_dir+"/source");
+    log("[*] Please instert '"+app_name+"' into the 'ccao.toml' .");
 }
 
 void Cmd::build(){}
@@ -251,8 +269,28 @@ Cconfig::Cconfig(){
 
 
 }
+App::App(){}
+App::App(void *project){
+    Cproject *fuck_project = (Cproject *)project;
+    std::vector<std::string> temp;
 
-App::App(){};
+    this->type=APP;
+    this->name = fuck_project->config->name;
+        this->headers = ls(fuck_project->config->root+"/"+this->name+"/headers");
+        this->source = ls(fuck_project->config->root+"/"+this->name+"/source");
+
+
+    // 判断目录为不为空
+    if(
+        (this->headers.size() == 0) and (this->source.size() == 0)
+    ){
+        this->blank=true;
+
+    }else{
+        this->blank=false;
+    }
+
+};
 App::App(std::string name,std::string root,int type){
     std::vector<std::string> temp;
 
@@ -260,6 +298,7 @@ App::App(std::string name,std::string root,int type){
     this->name = name;
     // 根据类型初始化
     if(this->type == APP){
+        log(name);
         this->headers = ls(root+"/apps/"+name+"/headers");
         this->source = ls(root+"/apps/"+name+"/source");
     }
@@ -284,7 +323,7 @@ App::App(std::string name,std::string root,int type){
 Cproject::Cproject(Cconfig *config){
     
     this->config = config;
-    this->main = App(this->config->name,this->config->root,APP);// 最终要生成的可执行文件
+    this->main = App(this);// 最终要生成的可执行文件
 
     for (std::string app :this->config->apps){
         this->apps.push_back(
@@ -316,6 +355,7 @@ std::vector<std::string> ls(std::string path){
     if(
         (dp=opendir(path.c_str())) == NULL)
     {
+        log(path);
         std::cout << "[-]List files failed . \n[-]Please check your permissions. "<<std::endl;
         exit(-2);
     }
@@ -342,7 +382,9 @@ void start(){
         exit(-3);
     }
 }
-
+void c_mkdir(std::string path){
+    check_error(mkdir(path.c_str(),0775));
+}
 void check_error(int status){
     if(status<0){
         std::cout<<"[-] "<<strerror(errno)<<std::endl;

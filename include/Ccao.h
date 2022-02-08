@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-// error id -4
-// Ok id 9
+// error id -5
+// Ok id 8
 #define __CCAO__H
 #define APP 1
 #define DEPEND 0
@@ -39,6 +39,7 @@ public:
 
     // methods
     App();
+    App(void *project);
     App(std::string name,std::string root,int type);
 };
 
@@ -46,7 +47,7 @@ public:
 class Cproject {
 public:
     // attributes
-    App main;
+    App main;// 判断main的目录 为不为空 为空 就提示将不会创建 可执行文件
     std::vector<App> apps;
     std::vector<App> depends;
     Cconfig *config;
@@ -81,6 +82,7 @@ public:
 };
 // tools
 void start();
+void c_mkdir(std::string path);
 void check_error(int status);
 void log(std::string msg);
 std::vector<std::string> ls(std::string path);
