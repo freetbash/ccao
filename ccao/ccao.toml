@@ -3,7 +3,8 @@ name="ccao"
 #version=0.01
 cppversion="c++11"
 debug=true
-cpp=true
+cpp=true# g++ or gcc
+dynamic=false #生成 .a 而不是 .so
 apps=[
     "app1",
     "app2",

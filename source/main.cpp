@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
         Cproject project(&config);
         dsp=new DataSet(&project,&config);
     }
-
+    bool debug = config.debug;
     Cmd cmd = Cmd(argc,argv,dsp);
     // argc 传递有问题
     cmd.compare();

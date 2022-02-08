@@ -16,6 +16,7 @@ class Cconfig{
 public:
     // attributes
     bool cpp;
+    bool dynamic;
     bool debug;
     bool isProject;
     std::string root;
@@ -34,6 +35,8 @@ public:
     int type;
     bool blank;
     std::string name;
+    std::string path;
+    std::string out_path;
     std::vector<std::string> headers;
     std::vector<std::string> source;
 
@@ -41,6 +44,7 @@ public:
     App();
     App(void *project);
     App(std::string name,std::string root,int type);
+    void build(std::vector<std::string> cmds);// 构建自己
 };
 
 
@@ -87,4 +91,5 @@ void check_error(int status);
 void log(std::string msg);
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);
+
 #endif

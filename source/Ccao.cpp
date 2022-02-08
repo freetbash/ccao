@@ -9,6 +9,8 @@
 #include <sstream>
 #include <fstream>
 
+extern bool debug;
+
 Cmd::Cmd(int argc,char *argv[],DataSet *dsp){
     if (argc<2) {
         std::cout<<"Please enter 'ccao help' to check your args."<<std::endl;
@@ -167,6 +169,8 @@ int main(int argc, char *argv[]){
     
     // out
     c_mkdir((cwd+"/out"));
+        // temp
+        c_mkdir((cwd+"/out/temp"));
         // debug
         c_mkdir((cwd+"/out/debug"));
             c_mkdir((cwd+"/out/debug/bin"));
@@ -188,7 +192,8 @@ name=")""<<project_name<<R""("
 #version=0.01
 cppversion="c++11"
 debug=true
-cpp=true
+cpp=true# g++ or gcc
+dynamic=false #生成 .a 而不是 .so
 apps=[
     #"app1",
 ]
@@ -218,7 +223,30 @@ void Cmd::newapp(std::string app_name){
     log("[*] Please instert '"+app_name+"' into the 'ccao.toml' .");
 }
 
-void Cmd::build(){}
+void Cmd::build(){
+    std::vector<std::string> cmds;
+    std::string dynamic="";
+    std::string debug_op = "-g -Wall -fPIC -std="+this->dsp->config->cppversion;
+    // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
+    if(!debug){
+        debug_op ="-fPIC -std="+this->dsp->config->cppversion;;
+    }
+
+    if(this->dsp->config->dynamic){
+        cmds.push_back(debug_op);
+    }else{
+
+    }
+
+    for(App app :this->dsp->project->apps){
+        app.build(cmds);
+    }
+
+    // build main_app
+    check_error(system(""));
+
+
+}
 
 void Cmd::collect_depends(){}
 
@@ -265,6 +293,10 @@ Cconfig::Cconfig(){
         <std::string>
     (project_data,"cppversion");
 
+    this->dynamic = toml::find
+        <bool>
+    (project_data,"dynamic");
+
 
 
 
@@ -294,18 +326,26 @@ App::App(void *project){
 App::App(std::string name,std::string root,int type){
     std::vector<std::string> temp;
 
+    std::string build_out_path = "/out/debug/libs";
+    if (!debug){
+        build_out_path = "/out/release/libs";
+    }
     this->type=type;
     this->name = name;
+    
     // 根据类型初始化
     if(this->type == APP){
-        log(name);
-        this->headers = ls(root+"/apps/"+name+"/headers");
-        this->source = ls(root+"/apps/"+name+"/source");
+        this->path = root+"/apps/"+name;
+        this->headers = ls(this->path+"/headers");
+        this->source  = ls(this->path+"/source");
+        this->out_path = build_out_path+"/own";
     }
-    log("test");
+
     if(this->type == DEPEND){
-        this->headers = ls(root+"/depends/"+name+"/headers");
-        this->source = ls(root+"/depends/"+name+"/source");
+        this->path = root+"/depends/"+name;
+        this->headers = ls(this->path+"/headers");
+        this->source  = ls(this->path+"/source");
+        this->out_path = build_out_path+"/other";
     }
 
     // 判断目录为不为空
@@ -319,6 +359,15 @@ App::App(std::string name,std::string root,int type){
     }
 
 }
+
+void build(std::vector<std::string> cmds){
+    for (std::string cmd : cmds){
+
+    }
+
+
+}
+
 
 Cproject::Cproject(Cconfig *config){
     
