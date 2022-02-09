@@ -10,13 +10,7 @@
 #define DEPEND 0
 #define VERSION "0.01"
 
-// 一部分 设置 放在这里好调用
-extern bool debug;
-extern std::string root;
-extern bool dynamic_app;
-extern bool dynamic_depend;
-extern bool cpp;
-extern bool isProject;
+
 
 class Cconfig{
 public:
@@ -26,9 +20,10 @@ public:
     std::string cppversion;
     std::vector<std::string> apps;
     std::vector<std::string> depends;
-    // methods
-    Cconfig();
+    // methods    
+
 };
+void CONFIG();
 
 
 class App{
@@ -44,41 +39,33 @@ public:
 
     // methods
     App();
-    App(void *project);
+    
     App(std::string name,int type);
     void build(std::string cflag);// 构建自己
 };
+App *MAIN();
 
 
 class Cproject {
 public:
     // attributes
-    App main;// 判断main的目录 为不为空 为空 就提示将不会创建 可执行文件
+    App *main;// 判断main的目录 为不为空 为空 就提示将不会创建 可执行文件
     std::vector<App> apps;
     std::vector<App> depends;
-    Cconfig *config;
     // methods
-    Cproject(Cconfig *config);
 };
-
-class DataSet{
-public:
-    Cconfig *config;
-    Cproject *project;
-    DataSet(Cproject *project,Cconfig *config);
-};
+void PROJECT();
 
 
 class Cmd{
 public:
     std::string op;
     std::vector<std::string> args;
-    DataSet *dsp;
-    Cmd(int argc,char *argv[],DataSet *dsp);
+    Cmd(int argc,char *argv[]);
     void compare();
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
-    void build();// ccao build 
+    void build(App *main);// ccao build 
     void collect_depends();// ccao collect????? 还未开发
     void show_help();// show help
     void version();
@@ -94,4 +81,14 @@ void log(std::string msg);
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);
 
+
+// 一部分 设置 放在这里好调用
+extern bool debug;
+extern std::string root;
+extern bool dynamic_app;
+extern bool dynamic_depend;
+extern bool cpp;
+extern bool isProject;
+extern Cconfig *config;
+extern Cproject *project;
 #endif

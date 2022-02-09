@@ -17,14 +17,14 @@ bool dynamic_app;
 bool dynamic_depend;
 bool cpp;
 bool isProject;
+Cconfig *config;
+Cproject *project;
 
-Cmd::Cmd(int argc,char *argv[],DataSet *dsp){
+Cmd::Cmd(int argc,char *argv[]){
     if (argc<2) {
         std::cout<<"Please enter 'ccao help' to check your args."<<std::endl;
         exit(-3);
     }
-
-    this->dsp=dsp;    
     
     // ccao     new     app         app_name
     // agrv[0]  argv[1] argv[2]     argv[3]
@@ -68,7 +68,7 @@ void Cmd::compare(){
     }
     if(this->op == "build" and this->args.size() == 0){
         this->check_status();
-        this->build();
+        this->build(project->main);
         exit(3);
     }
     if(this->op == "collect" and this->args.size() ==0){
@@ -231,60 +231,62 @@ void Cmd::newapp(std::string app_name){
     log("[*] Please instert '"+app_name+"' into the 'ccao.toml' .");
 }
 
-void Cmd::build(){
+void Cmd::build(App *main){
 
     // 保持同一 前面不留空格 后面留   很重要
     // debug 模式 默认 或 dynamic 为 true生成 .so
     std::string cflag = "";
+    std::string libflag="";
     // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
     // gcc -fPIC -shared xxx.c -o libxxx.so
     if(debug){
         cflag ="-g -Wall ";
     }
-    cflag+="-std="+this->dsp->config->cppversion+" ";// c++11
+    cflag+="-std="+config->cppversion+" ";// c++11
+    
     if(dynamic_app){
-        cflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
+        libflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
     }else{
-        cflag="-c ";
+        libflag="-c ";
     }
 
     // build depends
-    for(App depend :this->dsp->project->depends){
-        depend.build(cflag);
+    for(App depend :project->depends){
+        depend.build(libflag);
         // 是否 要生成 .a 库？
     }
     log(
-        "[+]All depends "+(this->dsp->project->depends.size())
+        "[+]All depends "+std::to_string(project->depends.size())
     );
 
     // build your apps
-    for(App app :this->dsp->project->apps){
-        app.build(cflag);
+    for(App app :project->apps){
+        app.build(libflag);
     }
     log(
-        "[+]All apps "+(this->dsp->project->apps.size())
+        "[+]All apps "+std::to_string(project->depends.size())
     );
 
     // build main_app 
 
     // 头文件目录
     std::string include_path = 
-        root+"/"+this->dsp->config->name+" "
-        +root+"/apps "
-        +root+"/depends "
+        "-I"+root+"/"+config->name+" "
+        "-I"+root+"/apps "
+        "-I"+root+"/depends "
     ;
     // 库目录
     std::string libray_path;
     if(debug){
-        libray_path = root+"/out/debug/libs ";
+        libray_path = "-L"+root+"/out/debug/libs ";
     }else{
-        libray_path = root+"/out/release/libs ";
+        libray_path = "-L"+root+"/out/release/libs ";
     }
     //源码
     std::string source;
-    log(this->dsp->project->main.source[0]);
-    for(std::string c_cpp :this->dsp->project->main.source){
-        source += root+"/"+c_cpp+" ";
+
+    for(std::string c_cpp :main->source){
+        source += root+"/"+main->name+"/source/"+c_cpp+" ";
     }
     // 将c cpp 路径 拼接到一起
     std::string compiler;
@@ -298,26 +300,32 @@ void Cmd::build(){
         compiler
         +source
         +cflag
-        +"I "
         +include_path
-        +"L "
         +libray_path
         +"-o "
-        +this->dsp->project->main.out_path+"/"
-        +this->dsp->project->main.name
+        +main->out_path+"/"
+        +main->name
     );
     log("[*] "+cmd);
-    check_error(system(cmd.c_str()));
+    
+    int status = system(cmd.c_str());
+    if(status<0){
+        check_error(status);
+    }else{
+        log("[+] Main : "+main->name+" build ......Ok!");
+        log("[+]Your elf is here ! { \n\t"+main->out_path+"/"+main->name+"\n}");
+    }
 
-    log("[+] Main : "+this->dsp->project->main.name+" build ......Ok!");
 
 
 }
 
 void Cmd::collect_depends(){}
 
-Cconfig::Cconfig(){
+
+void CONFIG(){
     // 判断是否为工程项目
+    Cconfig *temp_config = new Cconfig;
     isProject=file_exist("ccao.toml");
     // init root
     char *path = get_current_dir_name();
@@ -335,15 +343,15 @@ Cconfig::Cconfig(){
 
     // 配置[project]
     const auto project_data = toml::find(data,"project");
-    this->name = toml::find
+    temp_config->name = toml::find
         <std::string>
     (project_data,"name");
 
-    this->apps = toml::find
+    temp_config->apps = toml::find
         <std::vector<std::string>>
     (project_data,"apps");
 
-    this->depends = toml::find
+    temp_config->depends = toml::find
         <std::vector<std::string>>
     (project_data,"depends");
     // gcc or g++
@@ -355,7 +363,7 @@ Cconfig::Cconfig(){
         <bool>
     (project_data,"debug");
 
-    this->cppversion = toml::find
+    temp_config->cppversion = toml::find
         <std::string>
     (project_data,"cppversion");
 
@@ -367,44 +375,38 @@ Cconfig::Cconfig(){
         <bool>
     (project_data,"dynamic_depend");
 
-
-
+    config=temp_config;
 
 }
 
 App::App(){}
-App::App(void *project){
-    Cproject *fuck_project = (Cproject *)project;
-    std::vector<std::string> temp;
-
-    this->out_path = "/out/debug/bin";
+App *MAIN(){
+    App *main = new App;
+    main->type=APP;
+    main->out_path = root+"/out/debug/bin";
     if (!debug){
-        this->out_path = "/out/release/bin";
+        main->out_path = root+"/out/release/bin";
     }
 
-    this->type=APP;
-    this->name = fuck_project->config->name;
-        this->headers = ls(root+"/"+this->name+"/headers");
-        this->source = ls(root+"/"+this->name+"/source");
-
+    main->type=APP;
+    main->name = config->name;
+        main->headers = ls(root+"/"+main->name+"/headers");
+        main->source = ls(root+"/"+main->name+"/source");
 
     // 判断目录为不为空
     if(
-        (this->headers.size() == 0) and (this->source.size() == 0)
+        (main->headers.size() == 0) and (main->source.size() == 0)
     ){
-        this->blank=true;
+        main->blank=true;
 
     }else{
-        this->blank=false;
+        main->blank=false;
     }
-
 };
 App::App(std::string name,int type){
-    std::vector<std::string> temp;
-
-    std::string build_out_path = "/out/debug/libs";
+    std::string build_out_path = root+"/out/debug/libs";
     if (!debug){
-        build_out_path = "/out/release/libs";
+        build_out_path = root+"/out/release/libs";
     }
     this->type=type;
     this->name = name;
@@ -454,8 +456,7 @@ void App::build(std::string cflag){
             compiler
             +source
             +cflag
-            +"-I "
-            +root+"/apps "
+            +"-I"+root+"/apps "
             +"-o "
     ); // 最终生成的命令
 
@@ -492,28 +493,25 @@ void App::build(std::string cflag){
 }
 
 
-Cproject::Cproject(Cconfig *config){
-    
-    this->config = config;
-    this->main = App(this);// 最终要生成的可执行文件
+void PROJECT(){
+    Cproject *temp_project = new Cproject;
 
-    for (std::string app :this->config->apps){
-        this->apps.push_back(
+    temp_project->main = MAIN();// 最终要生成的可执行文件
+
+    for (std::string app :config->apps){
+        temp_project->apps.push_back(
             App(app,APP)
         );
     }
 
-    for (std::string depend :this->config->depends){
-        this->depends.push_back(
+    for (std::string depend :config->depends){
+        temp_project->depends.push_back(
             App(depend,DEPEND)
         );
     }
 
-}
+    project=temp_project;
 
-DataSet::DataSet(Cproject *project,Cconfig *config){
-    this->config=config;
-    this->project=project;
 }
 
 

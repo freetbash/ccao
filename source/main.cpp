@@ -3,13 +3,12 @@
 
 
 int main(int argc, char *argv[]){
-    Cconfig config;
-    DataSet *dsp=NULL;
+    CONFIG();
     if(isProject){
-        Cproject project(&config);
-        dsp=new DataSet(&project,&config);
+        PROJECT();
     }
-    Cmd cmd = Cmd(argc,argv,dsp);
+
+    Cmd cmd = Cmd(argc,argv);
     // argc 传递有问题
     cmd.compare();
 }
