@@ -151,7 +151,7 @@ void hello_world();
             main.open(
                 (main_app+"/source/main.cpp"),std::ios::out
             );
-            {main<<R""(#include "../headers/hello.h"
+            {main<<R""(#include <hello.h>
 #include <iostream>
 
 using namespace std;
@@ -203,6 +203,7 @@ cpp=true# g++ or gcc
 dynamic_app=true #生成 .so 而不是 .a
 dynamic_depend=true #
 apps=[
+    #每一个app应该是相互独立的 如果需要 请你导出为star并添加到depends里面
     #"app1",
 ]
 depends=[
@@ -237,6 +238,30 @@ void Cmd::build(App *main){
     // debug 模式 默认 或 dynamic 为 true生成 .so
     std::string cflag = "";
     std::string libflag="";
+
+    // 链接的库
+    std::string link_file;// 借用头文件目录添加的操作 添加库
+    
+    // 头文件目录 任意文件随便包含 放心玩！
+    std::string include_path = "-I"+root+"/"+config->name+"/headers ";
+    for(App depend:project->depends){
+        include_path+="-I"+root+"/depends/"+depend.name+"headers ";
+        link_file+="-l"+depend.name+" ";
+    }
+    for(App app :project->apps){
+        include_path+="-I"+root+"/apps/"+app.name+"/headers ";
+        link_file+="-l"+app.name+" ";
+    }
+    
+    // 库目录
+    std::string libray_path;
+    if(debug){
+        libray_path = "-L"+root+"/out/debug/libs/own "+"-L"+root+"/out/debug/libs/other ";
+    }else{
+        libray_path = "-L"+root+"/out/release/libs/own "+"-L"+root+"/out/release/libs/other ";
+    }
+
+    
     // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
     // gcc -fPIC -shared xxx.c -o libxxx.so
     if(debug){
@@ -250,9 +275,9 @@ void Cmd::build(App *main){
         libflag="-c ";
     }
 
-    // build depends
+    // build depends 先生成依赖 没毛病
     for(App depend :project->depends){
-        depend.build(libflag);
+        depend.build(libflag,include_path,libray_path);
         // 是否 要生成 .a 库？
     }
     log(
@@ -261,27 +286,14 @@ void Cmd::build(App *main){
 
     // build your apps
     for(App app :project->apps){
-        app.build(libflag);
+        app.build(libflag,include_path,libray_path);
     }
     log(
         "[+]All apps "+std::to_string(project->depends.size())
     );
 
     // build main_app 
-
-    // 头文件目录
-    std::string include_path = 
-        "-I"+root+"/"+config->name+" "
-        "-I"+root+"/apps "
-        "-I"+root+"/depends "
-    ;
-    // 库目录
-    std::string libray_path;
-    if(debug){
-        libray_path = "-L"+root+"/out/debug/libs ";
-    }else{
-        libray_path = "-L"+root+"/out/release/libs ";
-    }
+    
     //源码
     std::string source;
 
@@ -302,22 +314,14 @@ void Cmd::build(App *main){
         +cflag
         +include_path
         +libray_path
+        +link_file
         +"-o "
         +main->out_path+"/"
         +main->name
     );
     log("[*] "+cmd);
     
-    int status = system(cmd.c_str());
-    if(status<0){
-        check_error(status);
-    }else{
-        log("[+] Main : "+main->name+" build ......Ok!");
-        log("[+]Your elf is here ! { \n\t"+main->out_path+"/"+main->name+"\n}");
-    }
-
-
-
+    check_error(system(cmd.c_str()));
 }
 
 void Cmd::collect_depends(){}
@@ -438,12 +442,15 @@ App::App(std::string name,int type){
 
 }
 
-void App::build(std::string cflag){
+void App::build(std::string cflag,std::string include_path,std::string library_path){
     if(this->blank){
         log("[*] "+this->name+"is blank, it isn't be build !");
         return;
         }
     std::string source;
+    for (std::string c_cpp :this->source){
+        source+=root+"/apps/"+this->name+"/source/"+c_cpp+" ";
+    }
     // 将c cpp 路径 拼接到一起
     std::string compiler;
     if(cpp){
@@ -456,40 +463,44 @@ void App::build(std::string cflag){
             compiler
             +source
             +cflag
-            +"-I"+root+"/apps "
+            +include_path
+            +library_path
             +"-o "
     ); // 最终生成的命令
 
     for(std::string c_cpp :this->source){
         source += this->path+"/"+c_cpp+" ";
     }
-
-    if(dynamic_app){ // debug 已经在Cmd::build里面控制过了
-        // -g -Wall -fPIC  (or) -fPIC
-        cmd+=this->out_path+"/lib"+this->name+".so.0";
-        log("[*] "+cmd);
-        check_error(system(cmd.c_str()));
+    if(this->source.size()>0){
+        std::string type;
+        if(this->type==APP){
+            type="APP";
+        }else{
+            type="DEPEND";
+        }
+        log("[*] Start build ("+type+") "+ this->name);
+        if(dynamic_app){ // debug 已经在Cmd::build里面控制过了
+            // -g -Wall -fPIC  (or) -fPIC
+            cmd+=this->out_path+"/lib"+this->name+".so";
+            log("[*] "+cmd);
+            check_error(system(cmd.c_str()));
+        }else{
+            // -c 
+            cmd+=root+"/out/temp/"+this->name+".o";
+            log("[*] "+cmd);
+            check_error(system(cmd.c_str()));
+            // ar -rc libxxx.a xxx.o
+            cmd = 
+                "ar -rc "
+                +this->out_path+"/lib"+this->name+".a "
+                +root+"/out/temp/"+this->name+".o"
+            ;
+            log("[*] "+cmd);
+            check_error(system(cmd.c_str()));
+        }
     }else{
-        // -c 
-        cmd+=root+"/out/temp/"+this->name+".o";
-        log("[*] "+cmd);
-        check_error(system(cmd.c_str()));
-        // ar -rc libxxx.a xxx.o
-        cmd = 
-            "ar -rc "
-            +this->out_path+"/lib"+this->name+".a "
-            +root+"/out/temp/"+this->name+".o"
-        ;
-        log("[*] "+cmd);
-        check_error(system(cmd.c_str()));
+        log("[*]The '"+this->name+"' has no source files.");
     }
-    std::string type;
-    if(this->type==APP){
-        type="App";
-    }else{
-        type="Depend";
-    }
-    log("[+] "+type+": "+this->name+" build ......Ok!");
 }
 
 

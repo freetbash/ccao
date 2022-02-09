@@ -41,7 +41,11 @@ public:
     App();
     
     App(std::string name,int type);
-    void build(std::string cflag);// 构建自己
+    void build(
+        std::string cflag,
+        std::string include_path,
+        std::string library_path
+    );// 构建自己
 };
 App *MAIN();
 
@@ -70,6 +74,7 @@ public:
     void show_help();// show help
     void version();
     void export_app();
+    void export_prokect();// 必须是动态链接库
     void check_status();
 
 };
