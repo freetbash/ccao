@@ -447,6 +447,16 @@ void App::build(std::string cflag,std::string include_path,std::string library_p
         log("[*] "+this->name+"is blank, it isn't be build !");
         return;
         }
+    // 删除上一次构建
+    system(
+        (
+            "rm -f "
+            +this->out_path+"/lib"+this->name+".so "
+            +this->out_path+"/lib"+this->name+".a "
+            +root+"/out/temp/"+this->name+".o"
+        ).c_str()
+    );
+
     std::string source;
     for (std::string c_cpp :this->source){
         source+=root+"/apps/"+this->name+"/source/"+c_cpp+" ";

@@ -12,7 +12,7 @@
             "program": "/home/bash/ccao/ca_d",
             "args": ["build"],
             "stopAtEntry": false,
-            "cwd": "/home/bash/ccao/vt452",
+            "cwd": "/home/bash/ccao/TEstcao",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
