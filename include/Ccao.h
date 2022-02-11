@@ -4,7 +4,7 @@
 #include <string>
 
 // error id -5
-// Ok id 8
+// Ok id 9
 #define __CCAO__H
 #define APP 1
 #define DEPEND 0
@@ -39,7 +39,8 @@ public:
 
     // methods
     App();
-    
+    App *clone();
+    static App *find(std::string app_name);
     App(std::string name,int type);
     void build(
         std::string cflag,
@@ -70,6 +71,7 @@ public:
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
     void build(App *main);// ccao build 
+    void build_one_app();
     void collect_depends();// ccao collect????? 还未开发
     void show_help();// show help
     void version();
@@ -88,12 +90,5 @@ bool file_exist(std::string filename);
 
 
 // 一部分 设置 放在这里好调用
-extern bool debug;
-extern std::string root;
-extern bool dynamic_app;
-extern bool dynamic_depend;
-extern bool cpp;
 extern bool isProject;
-extern Cconfig *config;
-extern Cproject *project;
 #endif

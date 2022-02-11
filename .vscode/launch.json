@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/bash/ccao/ca_d",
-            "args": ["build"],
+            "args": ["build","c43g"],
             "stopAtEntry": false,
             "cwd": "/home/bash/ccao/TEstcao",
             "environment": [],

@@ -13,6 +13,14 @@
 // 一部分 设置 放在这里好调用
 bool debug;
 std::string root;
+std::string cflag;
+std::string libflag;
+// 链接的库
+std::string link_file;// 借用头文件目录添加的操作 添加库
+// 头文件目录 任意文件随便包含 放心玩！
+std::string include_path;
+// 库目录
+std::string libray_path;
 bool dynamic_app;
 bool dynamic_depend;
 bool cpp;
@@ -66,10 +74,32 @@ void Cmd::compare(){
         this->version();
         exit(2);
     }
-    if(this->op == "build" and this->args.size() == 0){
-        this->check_status();
-        this->build(project->main);
-        exit(3);
+    if(this->op == "build"){
+        if(this->args.size() == 0){
+            this->check_status();
+            this->build(project->main);
+            exit(3);
+        }else{
+            std::string error_app="";
+            std::string ok_app="";
+            for(std::string app_name :this->args){
+                App *target=NULL;
+                target = App::find(app_name);
+                if(target!=NULL){
+                    target->build(libflag,include_path,libray_path);
+                    ok_app +="[+](APP) "+app_name +" build .....Ok \n ";
+                }else{
+                    error_app += app_name + " ";
+                }
+            }
+            if(error_app != ""){
+                log("[*]These apps not in your config.");
+                log("[-] "+error_app);
+            }else{
+                log(ok_app);
+            }
+            exit(9);
+        }
     }
     if(this->op == "collect" and this->args.size() ==0){
         this->check_status();
@@ -108,6 +138,7 @@ All commands:
 Special with args:
     new project_name    // create a project
     new app app_name    // create a app
+    build app // if you just modify one app use this can build one only
     export_app app_name // export yout app to 7z to deliver it on web
 
 
@@ -234,46 +265,7 @@ void Cmd::newapp(std::string app_name){
 
 void Cmd::build(App *main){
 
-    // 保持同一 前面不留空格 后面留   很重要
-    // debug 模式 默认 或 dynamic 为 true生成 .so
-    std::string cflag = "";
-    std::string libflag="";
 
-    // 链接的库
-    std::string link_file;// 借用头文件目录添加的操作 添加库
-    
-    // 头文件目录 任意文件随便包含 放心玩！
-    std::string include_path = "-I"+root+"/"+config->name+"/headers ";
-    for(App depend:project->depends){
-        include_path+="-I"+root+"/depends/"+depend.name+"headers ";
-        link_file+="-l"+depend.name+" ";
-    }
-    for(App app :project->apps){
-        include_path+="-I"+root+"/apps/"+app.name+"/headers ";
-        link_file+="-l"+app.name+" ";
-    }
-    
-    // 库目录
-    std::string libray_path;
-    if(debug){
-        libray_path = "-L"+root+"/out/debug/libs/own "+"-L"+root+"/out/debug/libs/other ";
-    }else{
-        libray_path = "-L"+root+"/out/release/libs/own "+"-L"+root+"/out/release/libs/other ";
-    }
-
-    
-    // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
-    // gcc -fPIC -shared xxx.c -o libxxx.so
-    if(debug){
-        cflag ="-g -Wall ";
-    }
-    cflag+="-std="+config->cppversion+" ";// c++11
-    
-    if(dynamic_app){
-        libflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
-    }else{
-        libflag="-c ";
-    }
 
     // build depends 先生成依赖 没毛病
     for(App depend :project->depends){
@@ -384,6 +376,25 @@ void CONFIG(){
 }
 
 App::App(){}
+App* App::clone(){
+    App *temp = new App;
+    temp->type = this->type;
+    temp->blank = this->blank;
+    temp->name = this->name;
+    temp->path = this->path;
+    temp->out_path = this->out_path;
+    temp->headers = this->headers;
+    temp->source = this->source;
+    return temp;
+}
+App* App::find(std::string app_name){
+    for(App current_app: project->apps){
+        if(current_app.name == app_name){
+            return current_app.clone();
+        }
+    }
+    return NULL;
+}
 App *MAIN(){
     App *main = new App;
     main->type=APP;
@@ -533,6 +544,41 @@ void PROJECT(){
 
     project=temp_project;
 
+            // 保持同一 前面不留空格 后面留   很重要
+    // debug 模式 默认 或 dynamic 为 true生成 .so
+    cflag = "";
+    libflag="";
+
+    for(App depend:project->depends){
+        include_path+="-I"+root+"/depends/"+depend.name+"headers ";
+        link_file+="-l"+depend.name+" ";
+    }
+    for(App app :project->apps){
+        include_path+="-I"+root+"/apps/"+app.name+"/headers ";
+        link_file+="-l"+app.name+" ";
+    }
+    
+
+    if(debug){
+        libray_path = "-L"+root+"/out/debug/libs/own "+"-L"+root+"/out/debug/libs/other ";
+    }else{
+        libray_path = "-L"+root+"/out/release/libs/own "+"-L"+root+"/out/release/libs/other ";
+    }
+
+    include_path += "-I"+root+"/"+config->name+"/headers ";
+    // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动
+    // gcc -fPIC -shared xxx.c -o libxxx.so
+    if(debug){
+        cflag ="-g -Wall ";
+    }
+    cflag+="-std="+config->cppversion+" ";// c++11
+    
+    if(dynamic_app){
+        libflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
+    }else{
+        libflag="-c ";
+    }
+
 }
 
 
@@ -592,3 +638,4 @@ bool file_exist(std::string filename){
     struct stat buffer;
     return (stat (filename.c_str(),&buffer) ==0);
 }
+
