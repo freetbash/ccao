@@ -10,6 +10,8 @@
 #include <sstream>
 #include <fstream>
 
+// 下个版本有popen替代system
+
 // 一部分 设置 放在这里好调用
 bool debug;
 std::string root;
@@ -106,17 +108,99 @@ void Cmd::compare(){
         this->collect_depends();
         exit(4);
     }
-    if(this->op == "export_app" and this->args.size() ==1){
-        this->check_status();
-        this->export_app();//你还没有完成
-        exit(5);
-    }
+    // if(this->op == "export"){
+    //     this->check_status();
+
+    //     if(this->args.size() ==0){
+    //         ; // export whole project as a 7z
+    //         exit(10);
+    //     }else{
+    //         std::string mode = this->args[0];// 存放操作码
+    //         this->args.erase(this->args.begin()); // 删除操作码
+    //         if (this->args.size() < 0){
+    //             log("[-] Please type out some names of your");
+    //             }
+            
+    //         for(std::string app_name :this->args){
+    //             App *target=NULL;
+    //             target = App::find(app_name);
+    //             if(target!=NULL){
+    //                 if(mode=="code"){
+    //                     this->export_apps_to_stars(target,CODE);
+    //                 }else if(mode == "libs"){
+    //                     this->export_apps_to_stars(target,LIBS);
+    //                 }else{
+    //                     log("[-] Please select a mode from ['code','libs'] ");
+    //                     exit(-8);
+    //                 }
+    //             }else{
+    //                 log("[*] Skip the "+app_name+", because it is not a app.");
+    //             }
+    //         }
+    //         exit(5);
+
+    //     }
+    // }
     this->show_help();
     log("[*] op: "+this->op);
     exit(1);
 }
 
-void Cmd::export_app(){}
+void Cmd::export_apps_to_stars(App *target, int type){
+    system(
+        ("rm -f "+root+"/out/temp/star.toml").c_str()
+    );
+    // tar -zcvf 压缩文件名 .tar.gz 被压缩文件名 
+    std::string out_file_path = root+"/out/stars";
+    if(type == CODE){
+        out_file_path += "/code/"+target->name+"$code.tar.gz ";
+        
+            {
+                std::ofstream star;
+                star.open(
+                    (root+"/out/temp/star.toml"),std::ios::out
+                );
+                star <<  "[star]\napp_name=\""+target->name+"\"\ntype=\"CODE\"";
+                star.close();
+            }   
+            
+        system(
+            ("tar -zcvf "+out_file_path+target->path+root+"/out/temp/star.toml ").c_str()
+        );
+    }else{
+        out_file_path += "/libs/"+target->name+"$libs.tar.gz ";
+        
+            {
+                std::ofstream star;
+                star.open(
+                    (root+"/out/temp/star.toml"),std::ios::out
+                );
+                star <<  "[star]\napp_name=\""+target->name+"\"\ntype=\"LIBS\"";
+                star.close();
+            }   
+
+        target->build(libflag,include_path,libray_path);
+        std::string temp_path=root+"/out/temp/"+target->name;
+        system(
+            ("cp -rf "+target->path+"/headers"+" "+temp_path+"/headers").c_str()
+        );
+        system(
+            // libray_path
+            ("cp -rf "+out_file_path+" "+target->out_path+"/lib"+target->name+".a " +temp_path+"/libs").c_str()
+        );
+        system(
+            // libray_path
+            ("cp -rf "+out_file_path+" "+target->out_path+"/lib"+target->name+".so " +temp_path+"/libs").c_str()
+        );
+        system(
+            ("tar -zcvf "
+                +out_file_path
+                +target->path+target->path+"/headers"+" "+temp_path).c_str()
+        );
+
+    }
+
+}
 
 void Cmd::check_status(){
     // 检查是否为 工程目录
@@ -138,8 +222,19 @@ All commands:
 Special with args:
     new project_name    // create a project
     new app app_name    // create a app
-    build app // if you just modify one app use this can build one only
-    export_app app_name // export yout app to 7z to deliver it on web
+    build app_name0 app_name1 // if you just modify one app use this can build one only
+    export // export your whole porject to a tar.xz
+    export <[code] or [libs]> app_name0 app_name1 // export yout app to tar.gz to deliver it on web
+
+        // export code app_name
+            app_name$code.tar.gz
+                /headers
+                /source
+        // export libs app_name
+            app_name$libs.tar.gz
+                /headers
+                /libs
+        
 
 
 Author:
@@ -209,6 +304,12 @@ int main(int argc, char *argv[]){
     c_mkdir((cwd+"/out"));
         // temp
         c_mkdir((cwd+"/out/temp"));
+        // stars
+        c_mkdir((cwd+"/out/stars"));
+            // code
+            c_mkdir((cwd+"/out/stars/code"));
+            // libs
+            c_mkdir((cwd+"/out/stars/libs"));
         // debug
         c_mkdir((cwd+"/out/debug"));
             c_mkdir((cwd+"/out/debug/bin"));
@@ -638,4 +739,3 @@ bool file_exist(std::string filename){
     struct stat buffer;
     return (stat (filename.c_str(),&buffer) ==0);
 }
-

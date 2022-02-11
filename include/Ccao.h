@@ -3,11 +3,15 @@
 #include <vector>
 #include <string>
 
-// error id -5
-// Ok id 9
+// error id -8
+// Ok id 10
 #define __CCAO__H
 #define APP 1
 #define DEPEND 0
+// export 
+#define CODE 1
+#define LIBS 0
+
 #define VERSION "0.01"
 
 
@@ -71,12 +75,11 @@ public:
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
     void build(App *main);// ccao build 
-    void build_one_app();
     void collect_depends();// ccao collect????? 还未开发
     void show_help();// show help
     void version();
-    void export_app();
-    void export_prokect();// 必须是动态链接库
+    void export_apps_to_stars(App *target, int type);// stars 仅仅是源码 应该再写一种 可以导出 库的 code lib
+    void export_project();// 必须是动态链接库
     void check_status();
 
 };
@@ -87,7 +90,6 @@ void check_error(int status);
 void log(std::string msg);
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);
-
 
 // 一部分 设置 放在这里好调用
 extern bool isProject;
