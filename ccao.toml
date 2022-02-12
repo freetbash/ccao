@@ -1,0 +1,18 @@
+[project]
+name="ccao"
+#version=0.01
+cppversion="c++11"
+debug=true
+cpp=true# g++ or gcc
+dynamic_app=true #生成 .so 而不是 .a
+dynamic_depend=true #
+apps=[
+    #每一个app应该是相互独立的 如果需要 请你导出为star并添加到depends里面
+    #"app1",
+    "public",
+    "tools"
+]
+depends=[
+    #"1$version"
+    "toml"
+]
