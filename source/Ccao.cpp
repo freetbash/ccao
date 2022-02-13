@@ -289,7 +289,7 @@ void Cmd::build(App *main){
         app.build(libflag,include_path,libray_path);
     }
     log(
-        "[+]All apps "+std::to_string(project->depends.size())
+        "[+]All apps "+std::to_string(project->apps.size())
     );
 
     // build main_app 
