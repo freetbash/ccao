@@ -23,8 +23,7 @@ std::string link_file;// 借用头文件目录添加的操作 添加库
 std::string include_path;
 // 库目录
 std::string libray_path;
-bool dynamic_app;
-bool dynamic_depend;
+
 bool cpp;
 bool isProject;
 Cconfig *config;
@@ -77,31 +76,9 @@ void Cmd::compare(){
         exit(2);
     }
     if(this->op == "build"){
-        if(this->args.size() == 0){
-            this->check_status();
-            this->build(project->main);
-            exit(3);
-        }else{
-            std::string error_app="";
-            std::string ok_app="";
-            for(std::string app_name :this->args){
-                App *target=NULL;
-                target = App::find(app_name);
-                if(target!=NULL){
-                    target->build(libflag,include_path,libray_path);
-                    ok_app +="[+](APP) "+app_name +" build .....Ok \n ";
-                }else{
-                    error_app += app_name + " ";
-                }
-            }
-            if(error_app != ""){
-                log("[*]These apps not in your config.");
-                log("[-] "+error_app);
-            }else{
-                log(ok_app);
-            }
-            exit(9);
-        }
+        this->check_status();
+        this->build(project->main);
+        exit(3);
     }
     if(this->op == "collect" and this->args.size() ==0){
         this->check_status();
@@ -146,62 +123,6 @@ void Cmd::compare(){
     exit(1);
 }
 
-void Cmd::export_apps_to_stars(App *target, int type){
-    system(
-        ("rm -f "+root+"/out/temp/star.toml").c_str()
-    );
-    // tar -zcvf 压缩文件名 .tar.gz 被压缩文件名 
-    std::string out_file_path = root+"/out/stars";
-    if(type == CODE){
-        out_file_path += "/code/"+target->name+"$code.tar.gz ";
-        
-            {
-                std::ofstream star;
-                star.open(
-                    (root+"/out/temp/star.toml"),std::ios::out
-                );
-                star <<  "[star]\napp_name=\""+target->name+"\"\ntype=\"CODE\"";
-                star.close();
-            }   
-            
-        system(
-            ("tar -zcvf "+out_file_path+target->path+root+"/out/temp/star.toml ").c_str()
-        );
-    }else{
-        out_file_path += "/libs/"+target->name+"$libs.tar.gz ";
-        
-            {
-                std::ofstream star;
-                star.open(
-                    (root+"/out/temp/star.toml"),std::ios::out
-                );
-                star <<  "[star]\napp_name=\""+target->name+"\"\ntype=\"LIBS\"";
-                star.close();
-            }   
-
-        target->build(libflag,include_path,libray_path);
-        std::string temp_path=root+"/out/temp/"+target->name;
-        system(
-            ("cp -rf "+target->path+"/headers"+" "+temp_path+"/headers").c_str()
-        );
-        system(
-            // libray_path
-            ("cp -rf "+out_file_path+" "+target->out_path+"/lib"+target->name+".a " +temp_path+"/libs").c_str()
-        );
-        system(
-            // libray_path
-            ("cp -rf "+out_file_path+" "+target->out_path+"/lib"+target->name+".so " +temp_path+"/libs").c_str()
-        );
-        system(
-            ("tar -zcvf "
-                +out_file_path
-                +target->path+target->path+"/headers"+" "+temp_path).c_str()
-        );
-
-    }
-
-}
-
 void Cmd::check_status(){
     // 检查是否为 工程目录
     if(!isProject){
@@ -222,20 +143,7 @@ All commands:
 Special with args:
     new project_name    // create a project
     new app app_name    // create a app
-    build app_name0 app_name1 // if you just modify one app use this can build one only
     export // export your whole porject to a tar.xz
-    export <[code] or [libs]> app_name0 app_name1 // export yout app to tar.gz to deliver it on web
-
-        // export code app_name
-            app_name$code.tar.gz
-                /headers
-                /source
-        // export libs app_name
-            app_name$libs.tar.gz
-                /headers
-                /libs
-        
-
 
 Author:
     This tool is made by Freet-Bash.
@@ -371,7 +279,6 @@ void Cmd::build(App *main){
     // build depends 先生成依赖 没毛病
     for(App depend :project->depends){
         depend.build(libflag,include_path,libray_path);
-        // 是否 要生成 .a 库？
     }
     log(
         "[+]All depends "+std::to_string(project->depends.size())
@@ -464,19 +371,18 @@ void CONFIG(){
         <std::string>
     (project_data,"cppversion");
 
-    dynamic_app = toml::find
-        <bool>
-    (project_data,"dynamic_app");
-
-    dynamic_depend = toml::find
-        <bool>
-    (project_data,"dynamic_depend");
-
     config=temp_config;
 
 }
 
 App::App(){}
+std::string App::get_type(){
+    if(this->type == APP){
+        return "APP";
+    }else{
+        return "DEPEND";
+    }
+}
 App* App::clone(){
     App *temp = new App;
     temp->type = this->type;
@@ -518,6 +424,7 @@ App *MAIN(){
     }else{
         main->blank=false;
     }
+    return main;
 };
 App::App(std::string name,int type){
     std::string build_out_path = root+"/out/debug/libs";
@@ -543,9 +450,7 @@ App::App(std::string name,int type){
     }
 
     // 判断目录为不为空
-    if(
-        (this->headers.size() == 0) and (this->source.size() == 0)
-    ){
+    if(this->source.size() == 0){
         this->blank=true;
 
     }else{
@@ -556,23 +461,18 @@ App::App(std::string name,int type){
 
 void App::build(std::string cflag,std::string include_path,std::string library_path){
     if(this->blank){
-        log("[*] "+this->name+"is blank, it isn't be build !");
+log("[*] "+this->name+"is blank, it isn't be build !");
         return;
         }
     // 删除上一次构建
     system(
         (
-            "rm -f "
-            +this->out_path+"/lib"+this->name+".so "
+            "rm -rf "
             +this->out_path+"/lib"+this->name+".a "
-            +root+"/out/temp/"+this->name+".o"
+            +root+"/out/temp/"+this->name
         ).c_str()
     );
-
-    std::string source;
-    for (std::string c_cpp :this->source){
-        source+=root+"/apps/"+this->name+"/source/"+c_cpp+" ";
-    }
+    // 准备 编译命令
     // 将c cpp 路径 拼接到一起
     std::string compiler;
     if(cpp){
@@ -580,49 +480,45 @@ void App::build(std::string cflag,std::string include_path,std::string library_p
     }else{
         compiler="gcc ";
     }
+    std::string source;
+    std::string cmd;
+    std::string type="/apps/";
+    if(this->type == DEPEND){
+        type="/depends/";
+    }
+    std::string all_o="";
 
-    std::string cmd(
+log("[*] Start build ("+this->get_type()+") "+ this->name);
+
+    for (std::string c_cpp :this->source){
+        c_mkdir(root+"/out/temp/"+this->name);
+
+        source=root+type+this->name+"/source/"+c_cpp+" ";
+        std::string out_path = root+"/out/temp/"+this->name+"/"+c_cpp+".o ";
+        all_o+=out_path;
+        std::string cmd(
             compiler
             +source
             +cflag
             +include_path
             +library_path
             +"-o "
-    ); // 最终生成的命令
+            +out_path
+        ); // 最终生成的命令
 
-    for(std::string c_cpp :this->source){
-        source += this->path+"/"+c_cpp+" ";
+log("[*] "+cmd);
+
+        check_error(system(cmd.c_str()));
     }
-    if(this->source.size()>0){
-        std::string type;
-        if(this->type==APP){
-            type="APP";
-        }else{
-            type="DEPEND";
-        }
-        log("[*] Start build ("+type+") "+ this->name);
-        if(dynamic_app){ // debug 已经在Cmd::build里面控制过了
-            // -g -Wall -fPIC  (or) -fPIC
-            cmd+=this->out_path+"/lib"+this->name+".so";
-            log("[*] "+cmd);
-            check_error(system(cmd.c_str()));
-        }else{
-            // -c 
-            cmd+=root+"/out/temp/"+this->name+".o";
-            log("[*] "+cmd);
-            check_error(system(cmd.c_str()));
-            // ar -rc libxxx.a xxx.o
-            cmd = 
-                "ar -rc "
-                +this->out_path+"/lib"+this->name+".a "
-                +root+"/out/temp/"+this->name+".o"
-            ;
-            log("[*] "+cmd);
-            check_error(system(cmd.c_str()));
-        }
-    }else{
-        log("[*]The '"+this->name+"' has no source files.");
-    }
+    cmd = 
+        "ar -rc "
+        +this->out_path+"/lib"+this->name+".a "
+        +all_o
+    ;
+log("[*] "+cmd);
+    check_error(system(cmd.c_str()));
+    
+
 }
 
 
@@ -651,7 +547,7 @@ void PROJECT(){
     libflag="";
 
     for(App depend:project->depends){
-        include_path+="-I"+root+"/depends/"+depend.name+"headers ";
+        include_path+="-I"+root+"/depends/"+depend.name+"/headers ";
         link_file+="-l"+depend.name+" ";
     }
     for(App app :project->apps){
@@ -674,11 +570,8 @@ void PROJECT(){
     }
     cflag+="-std="+config->cppversion+" ";// c++11
     
-    if(dynamic_app){
-        libflag=cflag+"-fPIC -shared ";// -g -Wall -fPIC  (or) -fPIC
-    }else{
-        libflag="-c ";
-    }
+
+    libflag="-c ";
 
 }
 
@@ -722,7 +615,7 @@ void start(){
 }
 
 void c_mkdir(std::string path){
-    check_error(mkdir(path.c_str(),0775));
+    mkdir(path.c_str(),0775);
 }
 
 void check_error(int status){

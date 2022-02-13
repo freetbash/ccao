@@ -46,6 +46,7 @@ public:
     App *clone();
     static App *find(std::string app_name);
     App(std::string name,int type);
+    std::string get_type();
     void build(
         std::string cflag,
         std::string include_path,
