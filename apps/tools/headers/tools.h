@@ -9,6 +9,7 @@
 #include <string.h>
 #include <iostream>
 #include <dirent.h>
+#include <colors.h>
 // toml
 #include <toml.h>
 
@@ -17,6 +18,7 @@ void start();
 void c_mkdir(std::string path);
 void check_error(int status);
 void log(std::string msg);
+
 std::vector<std::string> ls(std::string path);
 bool file_exist(std::string filename);
 

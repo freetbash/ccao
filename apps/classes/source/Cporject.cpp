@@ -52,6 +52,6 @@ void PROJECT(){
     cflag+="-std="+config->cppversion+" ";// c++11
     
 
-    libflag="-c ";
+    libflag="-c -std="+config->cppversion+" ";
 
 }

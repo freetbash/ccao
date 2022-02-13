@@ -6,9 +6,9 @@
 App::App(){}
 std::string App::get_type(){
     if(this->type == APP){
-        return "APP";
+        return color("APP",YELLOW);
     }else{
-        return "DEPEND";
+        return color("DEPEND",BLUE);
     }
 }
 App* App::clone(){
@@ -87,18 +87,6 @@ App::App(std::string name,int type){
 }
 
 void App::build(std::string cflag,std::string include_path,std::string library_path){
-    if(this->blank){
-log("[*] "+this->name+"is blank, it isn't be build !");
-        return;
-        }
-    // 删除上一次构建
-    system(
-        (
-            "rm -rf "
-            +this->out_path+"/lib"+this->name+".a "
-            +root+"/out/temp/"+this->name
-        ).c_str()
-    );
     // 准备 编译命令
     // 将c cpp 路径 拼接到一起
     std::string compiler;
@@ -114,8 +102,7 @@ log("[*] "+this->name+"is blank, it isn't be build !");
         type="/depends/";
     }
     std::string all_o="";
-
-log("[*] Start build ("+this->get_type()+") "+ this->name);
+log("[*] Start build ("+this->get_type()+") "+ color(this->name,HIGH_LIGHT));
 
     for (std::string c_cpp :this->source){
         c_mkdir(root+"/out/temp/"+this->name);

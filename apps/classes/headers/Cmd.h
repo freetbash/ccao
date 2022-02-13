@@ -14,6 +14,7 @@ public:
     void build(App *main);// ccao build 
     void collect_depends();// ccao collect????? 还未开发
     void clean();
+    void install();
     void show_help();// show help
     void version();
     void export_apps_to_stars(App *target, int type);// stars 仅仅是源码 应该再写一种 可以导出 库的 code lib

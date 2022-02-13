@@ -51,6 +51,8 @@ void log(std::string msg){
     std::cout<<msg<<std::endl;
 }
 
+
+
 bool file_exist(std::string filename){
     struct stat buffer;
     return (stat (filename.c_str(),&buffer) ==0);
