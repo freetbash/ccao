@@ -9,6 +9,9 @@
 #include <string.h>
 #include <iostream>
 #include <dirent.h>
+// toml
+#include <toml.h>
+
 // tools
 void start();
 void c_mkdir(std::string path);

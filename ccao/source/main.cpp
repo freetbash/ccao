@@ -1,15 +1,12 @@
-#include <hello.h>
-#include <iostream>
-
-using namespace std;
-
-void hello_world(){
-    cout << "Hello world !"<<endl;
-}
+#include <main.h>
 
 int main(int argc, char *argv[]){
+    CONFIG();
+    if(isProject){
+        PROJECT();
+    }
 
-    hello_world();
-
-    return 0;
+    Cmd cmd = Cmd(argc,argv);
+    // argc 传递有问题
+    cmd.compare();
 }

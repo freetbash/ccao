@@ -38,7 +38,7 @@ void start(){
 }
 
 void c_mkdir(std::string path){
-    check_error(mkdir(path.c_str(),0775));
+    mkdir(path.c_str(),0775);
 }
 
 void check_error(int status){

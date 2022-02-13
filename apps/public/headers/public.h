@@ -9,11 +9,6 @@
 #define CODE 1
 #define LIBS 0
 
-#define VERSION "0.01"
-
-extern bool isProject;
-
-
-
+#define VERSION "0.1"
 
 #endif
