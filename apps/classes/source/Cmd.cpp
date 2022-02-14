@@ -269,8 +269,12 @@ void Cmd::clean(){
 void Cmd::install(){
     std::string target_path = root+"/out/release/bin/"+project->main->name;
     if(!file_exist(target_path)){
+        if(!debug){
         log(color("[*] elf not found , start build !",BLUE));
         this->build(project->main);
+        }else{
+            log(color("[-] you must be in release mode .",RED));
+        }
     }
     system(("sudo cp "+target_path+" /usr/local/bin/").c_str());
     log(color("[+] "+target_path,GREEN));
