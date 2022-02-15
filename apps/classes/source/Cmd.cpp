@@ -267,6 +267,12 @@ void Cmd::clean(){
 }
 
 void Cmd::install(){
+    if(debug){
+        log(
+            color("[-] This operation need you are in release mode",RED)
+        );
+        return;
+    }
     std::string target_path = root+"/out/release/bin/"+project->main->name;
     if(!file_exist(target_path)){
         if(!debug){

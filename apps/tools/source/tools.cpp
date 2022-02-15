@@ -44,6 +44,7 @@ void c_mkdir(std::string path){
 void check_error(int status){
     if(status<0){
         std::cout<<"[-] "<<strerror(errno)<<std::endl;
+        exit(-99);
     }
 }
 
