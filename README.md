@@ -7,6 +7,7 @@ ccao help
 
 # 建议 
 
+```c++
 函数头宏定义推荐
   全部大写 ： 项目名_APP名_文件名
   
@@ -15,3 +16,4 @@ ccao help
         <test.h>直接导入
     不同APP
         <appname/hreaders/test/h>
+```
