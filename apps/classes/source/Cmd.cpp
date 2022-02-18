@@ -58,7 +58,15 @@ void Cmd::compare(){
     }
     if(this->op == "install"){
         this->check_status();
-        this->install();
+        if(this->args.size()==0){
+            this->install("/usr/local/bin/");
+
+        }else{
+
+            for(std::string out_path :this->args){
+                this->install(out_path);
+            }
+        }
         exit(12);
     }
     if(this->op == "build"){
@@ -126,12 +134,13 @@ void Cmd::show_help(){
         +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
         +color("version",YELLOW)+"     // print the version of ccao\n\t"
         +color("clean",YELLOW)+"       // clean your previous build lib or files\n\t"
-        +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin\n\n"
+        +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\n"
 
         +"Special with args:\n\t"
         +color("new project_name",BLUE)+"    // create a project\n\t"
         +color("new app app_name",BLUE)+"    // create a app\n\t"
-        +color("export",BLUE)+" // export your whole porject to a tar.xz\n\n"
+        +color("export",BLUE)+" // export your whole porject to a tar.xz\n\t"
+        +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
 
         +color("Author:\n\tThis tool is made by Freet-Bash.\n\tIf you want to get into the development, please go to github or gitee and fork this repo.\n\tIf you have other problems ,please get in touch with me.\n\tHere is my email : 3141495167@qq.com",HIGH_LIGHT);
     std::cout<<help_text<<std::endl;
@@ -267,14 +276,14 @@ void Cmd::clean(){
     }
 }
 
-void Cmd::install(){
+void Cmd::install(std::string out_path){
     if(debug){
         log(
             color("[-] This operation need you are in release mode",RED)
         );
         return;
     }
-    std::string target_path = root+"/out/release/bin/"+project->main->name;
+    std::string target_path = root+"/out/release/bin/"+project->main->name+" ";
     if(!file_exist(target_path)){
         if(!debug){
         log(color("[*] elf not found , start build !",BLUE));
@@ -283,7 +292,7 @@ void Cmd::install(){
             log(color("[-] you must be in release mode .",RED));
         }
     }
-    system(("sudo cp "+target_path+" /usr/local/bin/").c_str());
+    system(("sudo cp "+target_path+out_path).c_str());
     log(color("[+] "+target_path,GREEN));
 }
 

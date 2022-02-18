@@ -64,6 +64,12 @@ App::App(std::string name,int type){
     // 根据类型初始化
     if(this->type == APP){
         this->path = root+"/apps/"+name;
+        if(!file_exist(this->path)){
+            log(
+                color("[-] "+name+" not exist in your disk",RED)
+            );
+            exit(-23);
+        }
         this->headers = ls(this->path+"/headers");
         this->source  = ls(this->path+"/source");
         this->out_path = build_out_path+"/own";
@@ -71,6 +77,12 @@ App::App(std::string name,int type){
 
     if(this->type == DEPEND){
         this->path = root+"/depends/"+name;
+        if(!file_exist(this->path)){
+            log(
+                color("[-] "+name+" not exist in your disk",RED)
+            );
+            exit(-23);
+        }
         this->headers = ls(this->path+"/headers");
         this->source  = ls(this->path+"/source");
         this->out_path = build_out_path+"/other";
