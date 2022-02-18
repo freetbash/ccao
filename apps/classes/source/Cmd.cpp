@@ -293,7 +293,7 @@ void Cmd::install(std::string out_path){
         }
     }
     system(("sudo cp "+target_path+out_path).c_str());
-    log(color("[+] "+target_path,GREEN));
+    log(color("[+] "+out_path,GREEN));
 }
 
 void Cmd::newapp(std::string app_name){

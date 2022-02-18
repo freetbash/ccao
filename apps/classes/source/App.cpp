@@ -69,10 +69,11 @@ App::App(std::string name,int type){
                 color("[-] "+name+" not exist in your disk",RED)
             );
             exit(-23);
+        }else{
+            this->headers = ls(this->path+"/headers");
+            this->source  = ls(this->path+"/source");
+            this->out_path = build_out_path+"/own";
         }
-        this->headers = ls(this->path+"/headers");
-        this->source  = ls(this->path+"/source");
-        this->out_path = build_out_path+"/own";
     }
 
     if(this->type == DEPEND){
@@ -81,11 +82,11 @@ App::App(std::string name,int type){
             log(
                 color("[-] "+name+" not exist in your disk",RED)
             );
-            exit(-23);
+        }else{
+            this->headers = ls(this->path+"/headers");
+            this->source  = ls(this->path+"/source");
+            this->out_path = build_out_path+"/other";
         }
-        this->headers = ls(this->path+"/headers");
-        this->source  = ls(this->path+"/source");
-        this->out_path = build_out_path+"/other";
     }
 
     // 判断目录为不为空
