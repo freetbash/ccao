@@ -89,6 +89,7 @@ App::App(std::string name,int type){
 void App::build(std::string cflag,std::string include_path,std::string library_path){
     // 准备 编译命令
     // 将c cpp 路径 拼接到一起
+    int status;
     std::string compiler;
     if(cpp){
         compiler="g++ ";
@@ -122,7 +123,10 @@ log("[*] Start build ("+this->get_type()+") "+ color(this->name,HIGH_LIGHT));
 
 log("[*] "+cmd);
 
-        check_error(system(cmd.c_str()));
+        status = system(cmd.c_str());
+        if(status != 0){
+            exit(status);
+        }
     }
     cmd = 
         "ar -rc "
@@ -130,7 +134,9 @@ log("[*] "+cmd);
         +all_o
     ;
 log("[*] "+cmd);
-    check_error(system(cmd.c_str()));
-    
+    status = system(cmd.c_str());
+    if(status != 0){
+            exit(status);
+    }
 
 }

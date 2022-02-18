@@ -350,8 +350,11 @@ void Cmd::build(App *main){
         +main->name
     );
     log("[*] "+cmd);
-    
-    check_error(system(cmd.c_str()));
+    int status;
+    status = system(cmd.c_str());
+    if(status != 0){
+            exit(status);
+        }
     log(
             "[+]Build Ok!  It is here { \n\t"+color(main->out_path+"/"+main->name,GREEN)+" \n} "
     );
