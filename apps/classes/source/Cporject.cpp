@@ -29,11 +29,15 @@ void PROJECT(){
 
     for(App depend:project->depends){
         include_path+="-I"+root+"/depends/"+depend.name+"/headers ";
-        link_file+="-l"+depend.name+" ";
+        if(!depend.blank){
+            link_file+="-l"+depend.name+" ";
+        }
     }
     for(App app :project->apps){
         include_path+="-I"+root+"/apps/"+app.name+"/headers ";
-        link_file+="-l"+app.name+" ";
+        if(!app.blank){
+            link_file+="-l"+app.name+" ";
+        }
     }
     
 
