@@ -1,5 +1,5 @@
-#ifndef __CCAO_CMD__H
-#define __CCAO_CMD__H
+#ifndef CCAO_CLASSES_CMD
+#define CCAO_CLASSES_CMD
 #include <string>
 #include <vector>
 #include <App.h>

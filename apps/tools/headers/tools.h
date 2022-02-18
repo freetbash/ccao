@@ -1,5 +1,5 @@
-#ifndef _CCAO_TOOLS__H
-#define _CCAO_TOOLS__H
+#ifndef CCAO_TOOLS_TOOLS
+#define CCAO_TOOLS_TOOLS
 #include <string>
 #include <vector>
 #include <unistd.h>

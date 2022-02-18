@@ -1,5 +1,5 @@
-#ifndef _CCAO_COLORS__H
-#define _CCAO_COLORS__H
+#ifndef CCAO_TOOLS_COLORS
+#define CCAO_TOOLS_COLORS
 
 #define HIGH_LIGHT  "1m"
 #define RED     "31m"

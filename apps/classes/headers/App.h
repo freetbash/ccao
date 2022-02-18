@@ -1,5 +1,5 @@
-#ifndef __CCAO_APP__H
-#define __CCAO_APP__H
+#ifndef CCAO_CLASSES_APP
+#define CCAO_CLASSES_APP
 #include <string>
 #include <vector>
 class App{

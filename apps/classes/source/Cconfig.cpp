@@ -47,6 +47,10 @@ void CONFIG(){
         <std::string>
     (project_data,"cppversion");
 
+    extra_cflag= toml::find
+        <std::string>
+    (project_data,"cflag");
+
     config=temp_config;
 
 }

@@ -1,5 +1,5 @@
-#ifndef __CCAO_PUBLIC__H
-#define __CCAO_PUBLIC__H
+#ifndef CCAO_PUBLIC_PUBLIC
+#define CCAO_PUBLIC_PUBLIC
 
 // error id -8
 // Ok id 12

@@ -1,5 +1,5 @@
-#ifndef __CCAO_PROJECT__H
-#define __CCAO_PROJECT__H
+#ifndef CCAO_CLASSES_CPROJECT
+#define CCAO_CLASSES_CPROJECT
 #include <vector>
 #include <App.h>
 

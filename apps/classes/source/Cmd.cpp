@@ -222,6 +222,7 @@ name=")""<<project_name<<R""("
 cppversion="c++11"
 debug=true
 cpp=true# g++ or gcc
+cflag=""#额外参数 默认为空
 apps=[
     #每一个app应该是相互独立的 如果需要 请你导出为star并添加到depends里面
     #"app1",
@@ -348,6 +349,7 @@ void Cmd::build(App *main){
         +"-o "
         +main->out_path+"/"
         +main->name
+        +" "+extra_cflag
     );
     log("[*] "+cmd);
     int status;

@@ -1,5 +1,5 @@
-#ifndef __CCAO_CONFIG__H
-#define __CCAO_CONFIG__H
+#ifndef CCAO_CLASSES_CCONFIG
+#define CCAO_CLASSES_CCONFIG
 #include <string>
 #include <vector>
 

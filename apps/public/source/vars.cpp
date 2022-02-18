@@ -1,11 +1,11 @@
-#include <error.h>
-#include <public.h>
-#include <vars.h>
-
+#include <string>
+#include <Cproject.h>
+#include <Cconfig.h>
 
 bool debug;
 std::string root;
 std::string cflag;
+std::string extra_cflag;
 std::string libflag;
 std::string link_file;// 借用头文件目录添加的操作 添加库
 std::string include_path;
