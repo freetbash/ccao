@@ -89,6 +89,12 @@ App::App(std::string name,int type){
 void App::build(std::string cflag,std::string include_path,std::string library_path){
     // 准备 编译命令
     // 将c cpp 路径 拼接到一起
+    if(this->blank){
+        log(
+            color("[*] "+this->name+"'s Source ("+this->get_type()+") is empty ",YELLOW)
+        );
+        return;
+    }
     int status;
     std::string compiler;
     if(cpp){
