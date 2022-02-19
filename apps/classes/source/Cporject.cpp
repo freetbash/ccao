@@ -30,22 +30,17 @@ void PROJECT(){
     for(App depend:project->depends){
         include_path+="-I"+root+"/depends/"+depend.name+"/headers ";
         if(!depend.blank){
-            link_file+="-l"+depend.name+" ";
+            link_file+=depend.out_path+"/lib"+depend.name+".a ";
         }
     }
     for(App app :project->apps){
         include_path+="-I"+root+"/apps/"+app.name+"/headers ";
         if(!app.blank){
-            link_file+="-l"+app.name+" ";
+            
+            link_file+=app.out_path+"/lib"+app.name+".a ";
         }
     }
     
-
-    if(debug){
-        libray_path = "-L"+root+"/out/debug/libs/own "+"-L"+root+"/out/debug/libs/other ";
-    }else{
-        libray_path = "-L"+root+"/out/release/libs/own "+"-L"+root+"/out/release/libs/other ";
-    }
 
     include_path += "-I"+root+"/"+config->name+"/headers ";
     // 你打算完成Cmd::build 里的 貌似有些复杂 头文件不用动

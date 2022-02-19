@@ -51,6 +51,7 @@ void Cmd::compare(){
         if(this->args.size()==0){
             this->check_status();
             this->run_project();
+            exit(23);
         }
     }
     if(this->op == "version"){
@@ -360,8 +361,10 @@ void Cmd::build(App *main){
         +source
         +cflag
         +include_path
-        +libray_path
+        +"-Xlinker '-(' "
+        // -Xlinker "-("  /home/bash/projects/chameleon/out/debug/libs/own/libviews.a -Xlinker "-)" 
         +link_file
+        +"-Xlinker '-)' "
         +"-o "
         +main->out_path+"/"
         +main->name
