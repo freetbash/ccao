@@ -47,6 +47,12 @@ void Cmd::compare(){
     if(this->op == "help"){
         // 跳过就好
     }
+    if(this->op == "run"){
+        if(this->args.size()==0){
+            this->check_status();
+            this->run_project();
+        }
+    }
     if(this->op == "version"){
         this->version();
         exit(2);
@@ -133,6 +139,7 @@ void Cmd::show_help(){
         +color("collect",YELLOW)+"     // collect lib from internet or local libray(it could try this at first)\n\t"
         +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
         +color("version",YELLOW)+"     // print the version of ccao\n\t"
+        +color("run",YELLOW)+"     // build and run your app in debug or release\n\t"
         +color("clean",YELLOW)+"       // clean your previous build lib or files\n\t"
         +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\n"
 
@@ -372,4 +379,12 @@ void Cmd::build(App *main){
 }
 
 void Cmd::collect_depends(){}
+
+void Cmd::run_project(){
+    this->build(project->main);
+    system(
+        (project->main->out_path+"/"+project->main->name).c_str()
+        );
+
+}
 

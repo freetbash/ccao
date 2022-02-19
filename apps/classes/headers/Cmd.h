@@ -20,6 +20,7 @@ public:
     void export_apps_to_stars(App *target, int type);// stars 仅仅是源码 应该再写一种 可以导出 库的 code lib
     void export_project();// 必须是动态链接库
     void check_status();
+    void run_project();
 
 };
 
