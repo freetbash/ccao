@@ -3,7 +3,7 @@
 #include <string>
 #include <Cproject.h>
 #include <Cconfig.h>
-
+#include <Star.h>
 extern bool debug;
 extern std::string root;
 extern std::string cflag;
@@ -16,8 +16,10 @@ extern bool dynamic_app;
 extern bool dynamic_depend;
 extern bool cpp;
 extern bool isProject;
+extern bool isStar;
 extern Cconfig *config;
 extern Cproject *project;
+extern Star     *star;
 extern std::string help_text;
 
 #endif

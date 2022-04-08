@@ -6,7 +6,6 @@
 void CONFIG(){
     // 判断是否为工程项目
     Cconfig *temp_config = new Cconfig;
-    isProject=file_exist("ccao.toml");
     // init root
     char *path = get_current_dir_name();
     if(path!=NULL){
@@ -15,42 +14,48 @@ void CONFIG(){
         std::cout<<"[-]Your absolute path isn't setted successfully!\n [-]Please check your permissions. "<<std::endl;
         exit(-1);
     }
+    isProject=file_exist(root+"/ccao.toml");
+    isStar=file_exist(root+"/star.toml");
 
-    if(!isProject){return;} // 这里可是个关键
+    if(isProject){
+        std::string ccao = root + "/ccao.toml";
+        const toml::value data=toml::parse(ccao);
+        // 配置[project]
+        const auto project_data = toml::find(data,"project");
+        temp_config->name = toml::find
+            <std::string>
+        (project_data,"name");
 
-    std::string ccao = root + "/ccao.toml";
-    const toml::value data=toml::parse(ccao);
+        temp_config->apps = toml::find
+            <std::vector<std::string>>
+        (project_data,"apps");
 
-    // 配置[project]
-    const auto project_data = toml::find(data,"project");
-    temp_config->name = toml::find
-        <std::string>
-    (project_data,"name");
+        temp_config->depends = toml::find
+            <std::vector<std::string>>
+        (project_data,"depends");
+        // gcc or g++
+        cpp = toml::find
+            <bool>
+        (project_data,"cpp");
 
-    temp_config->apps = toml::find
-        <std::vector<std::string>>
-    (project_data,"apps");
+            debug = toml::find
+            <bool>
+        (project_data,"debug");
 
-    temp_config->depends = toml::find
-        <std::vector<std::string>>
-    (project_data,"depends");
-    // gcc or g++
-    cpp = toml::find
-        <bool>
-    (project_data,"cpp");
+        temp_config->cppversion = toml::find
+            <std::string>
+        (project_data,"cppversion");
 
-        debug = toml::find
-        <bool>
-    (project_data,"debug");
+        extra_cflag= toml::find
+            <std::string>
+        (project_data,"cflag");
 
-    temp_config->cppversion = toml::find
-        <std::string>
-    (project_data,"cppversion");
-
-    extra_cflag= toml::find
-        <std::string>
-    (project_data,"cflag");
-
-    config=temp_config;
-
+        config=temp_config;
+    } 
+    if(isStar){
+        std::string star = root + "/star.toml";
+        const toml::value data=toml::parse(star);
+        // 配置[project]
+        const auto star_data = toml::find(data,"star");
+    }
 }

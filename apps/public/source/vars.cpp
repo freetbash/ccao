@@ -1,7 +1,7 @@
 #include <string>
 #include <Cproject.h>
 #include <Cconfig.h>
-
+#include <Star.h>
 bool debug;
 std::string root;
 std::string cflag;
@@ -14,6 +14,8 @@ bool dynamic_app;
 bool dynamic_depend;
 bool cpp;
 bool isProject;
+bool isStar;
 Cconfig *config;
 Cproject *project;
+Star *star;
 std::string help_text;

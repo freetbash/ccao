@@ -11,15 +11,15 @@ public:
     void compare();
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
+    void newstar(std::string star_name);
     void build(App *main);// ccao build 
-    void collect_depends();// ccao collect????? 还未开发
+    void export_star();
     void clean();
     void install(std::string out_path);
     void show_help();// show help
     void version();
-    void export_apps_to_stars(App *target, int type);// stars 仅仅是源码 应该再写一种 可以导出 库的 code lib
-    void export_project();// 必须是动态链接库
-    void check_status();
+    void check_project();
+    void check_star();
     void run_project();
 
 };
