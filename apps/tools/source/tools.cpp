@@ -54,7 +54,31 @@ void log(std::string msg){
 
 
 
-bool file_exist(std::string filename){
-    struct stat buffer;
-    return (stat (filename.c_str(),&buffer) ==0);
+
+bool FileExists(std::string path)
+{
+    struct stat fileStat; 
+    if ( stat(path.c_str(), &fileStat) )
+    {
+        return false;
+    }
+    if ( !S_ISREG(fileStat.st_mode) )
+    {
+        return false;
+    }
+    return true;
+}
+
+bool DirExists(std::string path)
+{
+    struct stat fileStat;
+    if ( stat(path.c_str(), &fileStat) )
+    {
+        return false;
+    }
+    if ( !S_ISDIR(fileStat.st_mode) )
+    {
+        return false;
+    }
+    return true;
 }

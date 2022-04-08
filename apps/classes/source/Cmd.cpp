@@ -90,9 +90,14 @@ void Cmd::compare(){
         this->build(project->main);
         exit(3);
     }
+    if(this->op == "make"){
+        this->check_star();
+        star->make();
+        exit(123);
+    }
     if(this->op == "export"){
         this->check_star();
-        this->export_star();
+        this->export_star(star);
         exit(3);
     }
     // if(this->op == "export"){
@@ -155,18 +160,19 @@ void Cmd::show_help(){
         +color("build",YELLOW)+"       // build your all apps and your main function. Please check your debug of ccao.toml\n\t"
         +color("run",YELLOW)+"     // build and run your app in debug or release\n\t"
         +color("clean",YELLOW)+"       // clean your previous build lib or files\n\t"
-        +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\n"
+        +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\t"
         +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
         +color("new app app_name",BLUE)+"    // create a app\n\t"
         +color("export",BLUE)+" // export your whole star to a tar.xz\n\t"
-        +color("test",BLUE)+" // test\n\t"
+        +color("make",BLUE)+" // generate you star to out\n\t"
+        +color("test",BLUE)+" // test\n\n"
         +"Special with args:\n\t"
         +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
-        +color("version",YELLOW)+"     // print the version of ccao\n\t"
+        +color("version",YELLOW)+"     // print the version of ccao\n\n"
         
 
-        +color("Author:\n\tThis tool is made by Freet-Bash.\n\tIf you want to get into the development, please go to github or gitee and fork this repo.\n\tIf you have other problems ,please get in touch with me.\n\tHere is my email : 3141495167@qq.com",HIGH_LIGHT);
+        +color("Author:\n\tThis tool is made by Freet-Bash.\n\tIf you want to get into the development, please go to github or gitee and fork this repo.\n\tIf you have other problems ,please get in touch with me.\n\tHere is my email : 3141495167@qq.com\n",HIGH_LIGHT);
     std::cout<<help_text<<std::endl;
 }
 
@@ -308,7 +314,7 @@ void Cmd::install(std::string out_path){
         return;
     }
     std::string target_path = root+"/out/release/bin/"+project->main->name+" ";
-    if(!file_exist(target_path)){
+    if(!FileExists(target_path)){
         if(!debug){
         log(color("[*] elf not found , start build !",BLUE));
         this->build(project->main);
@@ -323,7 +329,7 @@ void Cmd::install(std::string out_path){
 void Cmd::newapp(std::string app_name){
  // 你打算 开发 new app
     std::string app_dir = root+"/apps/"+app_name;
-    if (file_exist(app_dir)){
+    if (FileExists(app_dir)){
         log("[-] The '"+app_name+"' has been created!");
         exit(-5);
         
@@ -340,9 +346,12 @@ void Cmd::newstar(std::string star_name){
     std::string cwd;
     cwd = root + "/" + star_name;
     c_mkdir(cwd);
+    c_mkdir(cwd+"/moudles");
     c_mkdir(cwd+"/out");
     c_mkdir(cwd+"/out/temp");
     c_mkdir(cwd+"/out/package");
+    c_mkdir(cwd+"/out/package/headers");
+    c_mkdir(cwd+"/out/package/libs");
     c_mkdir(cwd+"/test");
 
     std::ofstream star;
@@ -351,9 +360,6 @@ void Cmd::newstar(std::string star_name){
     {fmt << R""([star]
 name=")""<<star_name<<R""("
 version=0
-cppversion="c++11"
-cpp=true# g++ or gcc
-cflag=""#额外参数 默认为空
 moudles=[
     #"moudle1",
 ]
@@ -363,7 +369,18 @@ depends=[
     star << fmt.str();
     star.close();
 }
-
+void Star::make(){
+    std::string cmd;
+    cmd="cp "+root+"/star.toml "+root+"/out/package/";
+    system(cmd.c_str());
+    c_mkdir(root+"/out/package/headers");
+    c_mkdir(root+"/out/package/libs");
+    for (std::string moudle :this->moudles){
+        c_mkdir(root+"/out/package/"+moudle);
+        cmd="cp -r "+root+"/moudles/"+moudle+"/headers "+root+"/out/package/"+moudle;
+        system(cmd.c_str());
+    }
+}
 void Cmd::build(App *main){
     this->clean();
 
@@ -425,7 +442,7 @@ void Cmd::build(App *main){
     );
 }
 
-void Cmd::export_star(){
+void Cmd::export_star(Star *star){
     ;
 }
 void Cmd::run_project(){
@@ -435,4 +452,3 @@ void Cmd::run_project(){
         );
 
 }
-

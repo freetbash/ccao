@@ -20,6 +20,7 @@ void check_error(int status);
 void log(std::string msg);
 
 std::vector<std::string> ls(std::string path);
-bool file_exist(std::string filename);
+bool FileExists(std::string path);
+bool DirExists(std::string path);
 
 #endif

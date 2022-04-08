@@ -3,14 +3,11 @@
 #include <stdlib.h>
 int main(int argc, char *argv[]){
     std::string home(getenv("HOME"));
-    bool isInit = !file_exist(home)+"/.ccao";
-        printf("%d\n",isInit);
-    if(isInit){
+    if(!DirExists(home+"/.ccao")){
         init();
     }
     CONFIG();
     if(isProject){
-        printf("project\n");
         PROJECT();
     }
 
@@ -19,7 +16,7 @@ int main(int argc, char *argv[]){
     cmd.compare();
 }
 void init(){
-    printf("init\n");
+    printf("[*] Initing..... CCAO\n");
     std::string home(getenv("HOME"));
 
     c_mkdir(home+"/.ccao");
