@@ -1,0 +1,6 @@
+[star]
+name="teststar"
+version=0
+depends=[
+    #"1$version"
+]

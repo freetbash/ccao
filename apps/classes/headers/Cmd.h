@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <App.h>
+#include <Star.h>
 class Cmd{
 public:
     std::string op;

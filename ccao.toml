@@ -2,7 +2,7 @@
 name="ccao"
 #version=0.01
 cppversion="c++11"
-debug=false
+debug=true
 cpp=true# g++ or gcc
 cflag=""#额外参数 默认为空
 apps=[

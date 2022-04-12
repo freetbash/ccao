@@ -346,12 +346,11 @@ void Cmd::newstar(std::string star_name){
     std::string cwd;
     cwd = root + "/" + star_name;
     c_mkdir(cwd);
-    c_mkdir(cwd+"/moudles");
     c_mkdir(cwd+"/out");
+    c_mkdir(cwd+"/headers");
+    c_mkdir(cwd+"/source");
     c_mkdir(cwd+"/out/temp");
     c_mkdir(cwd+"/out/package");
-    c_mkdir(cwd+"/out/package/headers");
-    c_mkdir(cwd+"/out/package/libs");
     c_mkdir(cwd+"/test");
 
     std::ofstream star;
@@ -360,27 +359,13 @@ void Cmd::newstar(std::string star_name){
     {fmt << R""([star]
 name=")""<<star_name<<R""("
 version=0
-moudles=[
-    #"moudle1",
-]
 depends=[
     #"1$version"
 ])"";}
     star << fmt.str();
     star.close();
 }
-void Star::make(){
-    std::string cmd;
-    cmd="cp "+root+"/star.toml "+root+"/out/package/";
-    system(cmd.c_str());
-    c_mkdir(root+"/out/package/headers");
-    c_mkdir(root+"/out/package/libs");
-    for (std::string moudle :this->moudles){
-        c_mkdir(root+"/out/package/"+moudle);
-        cmd="cp -r "+root+"/moudles/"+moudle+"/headers "+root+"/out/package/"+moudle;
-        system(cmd.c_str());
-    }
-}
+
 void Cmd::build(App *main){
     this->clean();
 

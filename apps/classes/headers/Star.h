@@ -6,7 +6,6 @@ class Star{
 public:
     int version;
     std::string name;
-    std::vector<std::string> moudles;
     std::vector<std::string> depends;
     void make();
 };
