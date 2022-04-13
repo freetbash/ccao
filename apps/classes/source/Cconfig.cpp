@@ -35,10 +35,6 @@ void CONFIG(){
         config->depends = toml::find
             <std::vector<std::string>>
         (project_data,"depends");
-        // gcc or g++
-        cpp = toml::find
-            <bool>
-        (project_data,"cpp");
 
             debug = toml::find
             <bool>

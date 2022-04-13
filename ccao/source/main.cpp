@@ -20,7 +20,7 @@ void init(){
     std::string home(getenv("HOME"));
 
     c_mkdir(home+"/.ccao");
-    c_mkdir(home+"/.ccao/index");
+    system(("touch "+home+"/.ccao/index").c_str());
     c_mkdir(home+"/.ccao/stars");
     c_mkdir(home+"/.ccao/stars/headers");
     c_mkdir(home+"/.ccao/stars/libs");

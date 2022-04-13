@@ -260,14 +260,12 @@ name=")""<<project_name<<R""("
 #version=0.01
 cppversion="c++11"
 debug=true
-cpp=true# g++ or gcc
 cflag=""#额外参数 默认为空
 apps=[
-    #每一个app应该是相互独立的 如果需要 请你导出为star并添加到depends里面
-    #"app1",
+    #"app0",
 ]
 depends=[
-    #"1$version"
+    #"test_0"
 ])"";}
     ccao << fmt.str();
     ccao.close();
@@ -349,7 +347,6 @@ void Cmd::newstar(std::string star_name){
     c_mkdir(cwd+"/out");
     c_mkdir(cwd+"/headers");
     c_mkdir(cwd+"/source");
-    c_mkdir(cwd+"/out/temp");
     c_mkdir(cwd+"/out/package");
     c_mkdir(cwd+"/test");
 
@@ -360,7 +357,7 @@ void Cmd::newstar(std::string star_name){
 name=")""<<star_name<<R""("
 version=0
 depends=[
-    #"1$version"
+    #"test_0"
 ])"";}
     star << fmt.str();
     star.close();
