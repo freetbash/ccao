@@ -109,12 +109,7 @@ void App::build(std::string cflag,std::string include_path,std::string library_p
         return;
     }
     int status;
-    std::string compiler;
-    if(cpp){
-        compiler="g++ ";
-    }else{
-        compiler="gcc ";
-    }
+    std::string compiler("g++ ");
     std::string source;
     std::string cmd;
     std::string type="/apps/";

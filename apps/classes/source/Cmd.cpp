@@ -392,12 +392,7 @@ void Cmd::build(App *main){
         source += root+"/"+main->name+"/source/"+c_cpp+" ";
     }
     // 将c cpp 路径 拼接到一起
-    std::string compiler;
-    if(cpp){
-        compiler="g++ ";
-    }else{
-        compiler="gcc ";
-    }
+    std::string compiler("g++ ");
 
     std::string cmd(
         compiler
