@@ -8,7 +8,10 @@ void Star::make(){
     );
     system(cmd.c_str());
     c_mkdir(root+"/out/temp");
-    
+    cmd=(
+        "cp "+root+"/star.toml "+root+"/out/package "
+    );
+    system(cmd.c_str());
     std::cout << "[*]Start build Star " <<this->name<<std::endl;
     c_mkdir(root+"/out/package/target");
     cmd="cp "+root+"/headers/* "+root+"/out/package/target -r";

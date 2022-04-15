@@ -313,6 +313,7 @@ void Cmd::newstar(std::string star_name){
     {fmt << R""([star]
 name=")""<<star_name<<R""("
 author="root"
+email=""
 version="0"
 cpp=true # g++ or gcc
 cflag="-static "#额外参数 默认为空
