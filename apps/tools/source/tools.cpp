@@ -92,3 +92,13 @@ std::vector<std::string> split(std::string str, std::string pattern){
 
     return res;
 }
+std::vector<std::string> readlines_fromfile(std::string file_path){
+    std::vector<std::string> temp;
+    std::string query;
+    std::ifstream in(file_path);
+    while (getline(in,query))
+    {
+        temp.push_back(query);
+    }
+    return temp;
+}

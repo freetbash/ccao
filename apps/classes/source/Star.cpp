@@ -9,12 +9,11 @@ void Star::make(){
     system(cmd.c_str());
     c_mkdir(root+"/out/temp");
     cmd=(
-        "cp "+root+"/star.toml "+root+"/out/package "
+        "cp "+root+"/star.toml "+root+"/out/package/star.toml "
     );
     system(cmd.c_str());
     std::cout << "[*]Start build Star " <<this->name<<std::endl;
-    c_mkdir(root+"/out/package/target");
-    cmd="cp "+root+"/headers/* "+root+"/out/package/target -r";
+    cmd="cp "+root+"/headers/* "+root+"/out/package -r";
     system(cmd.c_str());
 // ar crsT lib1.a cwd.a .cwda
     std::vector<Depend> depends;
@@ -54,7 +53,7 @@ void Star::make(){
 
     cmd=(
         "ar crsT "
-        +root+"/out/package/target/lib"+this->name+".a "
+        +root+"/out/package/lib"+this->name+".a "
         +exe_file_path
         +link_file
     );

@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
     if(isProject){
         PROJECT();
     }
-
+    
     Cmd cmd = Cmd(argc,argv);
     // argc 传递有问题
     cmd.compare();
@@ -21,5 +21,4 @@ void init(){
     c_mkdir(home);
     
     c_mkdir(home+"/stars");
-    system(("touch "+home+"/stars/index").c_str());
 }

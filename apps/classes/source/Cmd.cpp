@@ -95,40 +95,40 @@ void Cmd::compare(){
         star->make();
         exit(123);
     }
-
-    // if(this->op == "export"){
-    //     this->check_status();
-
-    //     if(this->args.size() ==0){
-    //         ; // export whole project as a 7z
-    //         exit(10);
-    //     }else{
-    //         std::string mode = this->args[0];// 存放操作码
-    //         this->args.erase(this->args.begin()); // 删除操作码
-    //         if (this->args.size() < 0){
-    //             log("[-] Please type out some names of your");
-    //             }
-            
-    //         for(std::string app_name :this->args){
-    //             App *target=NULL;
-    //             target = App::find(app_name);
-    //             if(target!=NULL){
-    //                 if(mode=="code"){
-    //                     this->export_apps_to_stars(target,CODE);
-    //                 }else if(mode == "libs"){
-    //                     this->export_apps_to_stars(target,LIBS);
-    //                 }else{
-    //                     log("[-] Please select a mode from ['code','libs'] ");
-    //                     exit(-8);
-    //                 }
-    //             }else{
-    //                 log("[*] Skip the "+app_name+", because it is not a app.");
-    //             }
-    //         }
-    //         exit(5);
-
-    //     }
-    // }
+    if(this->op == "list"){
+        this->list();
+        exit(1);
+    }
+    if(this->op == "add"){
+        if(this->args.size()==1){
+            this->add(this->args[0]);
+        }
+        exit(1);
+    }
+    if(this->op == "cat"){
+        if(this->args.size()==1){
+            this->cat(this->args[0]);
+        }else{
+            log("please input right command for cat.");
+        }
+        exit(1);
+    }
+    if(this->op == "remove"){
+        if(this->args.size()==1){
+            this->remove(this->args[0]);
+        }else{
+            this->remove(this->args[0],this->args[1]);
+        }
+        exit(1);
+    }
+    if(this->op == "get"){
+        if(this->args.size()==1){
+            this->get(this->args[0]);
+        }else{
+            this->get(this->args[0],this->args[1]);
+        }
+        exit(1);
+    }
     this->show_help();
     log(color("[*] op: "+this->op,BLUE));
     exit(1);
@@ -159,8 +159,9 @@ void Cmd::show_help(){
         +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\t"
         +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
-        +color("new app app_name",BLUE)+"    // create a app\n\t"
         +color("add star_path",BLUE)+" // add a star to ~/.ccao/stars \n\t"
+        +color("get star",BLUE)+" // get a star from internet\n\t"
+        +color("get star version",BLUE)+" // for a concrete version\n\t"
         +color("make",BLUE)+" // generate you star to out\n\t"
         +color("list",BLUE)+" // list your all installed stars\n\t"
         +color("cat star",BLUE)+" // show you star's all version\n\t"
@@ -378,14 +379,39 @@ void Cmd::add(std::string star_path){
 
 }
 void Cmd::cat(std::string star){
-
+    if(DirExists(home+"/stars/"+star)){
+        log("["+star+"] all versions. ");
+        for(auto _ : ls(home+"/stars/"+star)){
+            log("\t--> "+_);
+        }
+    }else{
+        log("[-] The ("+star+") not found.");
+    }
 }
 void Cmd::list(){
-
+    log("Stars in local ccao.  ["+home+"/stars]");
+    for(auto _ : ls(home+"/stars")){
+        log("\t--> "+_);
+    }
 }
 void Cmd::remove(std::string star){
-
+    if(DirExists(home+"/stars/"+star)){
+        std::string cmd(
+            "rm "+home+"/stars/"+star+" -r"
+        );
+        system(cmd.c_str());
+        log("[+] The ("+star+") remove Ok!");
+    }else{
+        log("[-] The ("+star+") not found.");
+    }
 }
 void Cmd::remove(std::string star,std::string version){
+    this->remove(star+"/"+version);
+}
+
+void Cmd::get(std::string star){
+
+}
+void Cmd::get(std::string star,std::string version){
 
 }

@@ -23,6 +23,8 @@ public:
     void run_project();
     void add(std::string star_path);
     void cat(std::string star);
+    void get(std::string star);
+    void get(std::string star,std::string version);
     void remove(std::string star);
     void remove(std::string star,std::string version);
     void list();
