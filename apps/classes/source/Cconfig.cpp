@@ -47,6 +47,9 @@ void CONFIG(){
         extra_cflag= toml::find
             <std::string>
         (project_data,"cflag");
+        cpp = toml::find
+            <bool>
+        (project_data,"cpp");
     } 
     
     if(isStar){
@@ -61,12 +64,22 @@ void CONFIG(){
             <std::string>
         (star_data,"name");
         star->version = toml::find
-            <int>
+            <std::string>
         (star_data,"version");
 
         star->depends = toml::find
             <std::vector<std::string>>
         (star_data,"depends");
         // gcc or g++
+        cpp = toml::find
+            <bool>
+        (star_data,"cpp");
+
+        extra_cflag= toml::find
+            <std::string>
+        (star_data,"cflag");
+        star->cppversion = toml::find
+            <std::string>
+        (star_data,"cppversion");
     }
 }

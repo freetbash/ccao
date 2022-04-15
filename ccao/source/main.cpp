@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 int main(int argc, char *argv[]){
-    std::string home(getenv("HOME"));
-    if(!DirExists(home+"/.ccao")){
+    home =std::string(getenv("HOME"))+"/.ccao";
+    if(!DirExists(home)){
         init();
     }
     CONFIG();
@@ -17,12 +17,9 @@ int main(int argc, char *argv[]){
 }
 void init(){
     printf("[*] Initing..... CCAO\n");
-    std::string home(getenv("HOME"));
 
-    c_mkdir(home+"/.ccao");
-    system(("touch "+home+"/.ccao/index").c_str());
-    c_mkdir(home+"/.ccao/stars");
-    c_mkdir(home+"/.ccao/stars/headers");
-    c_mkdir(home+"/.ccao/stars/libs");
-
+    c_mkdir(home);
+    
+    c_mkdir(home+"/stars");
+    system(("touch "+home+"/stars/index").c_str());
 }

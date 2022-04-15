@@ -14,13 +14,14 @@
 #include <toml.h>
 
 // tools
-void start();
 void c_mkdir(std::string path);
 void check_error(int status);
 void log(std::string msg);
 
 std::vector<std::string> ls(std::string path);
+std::vector<std::string> readlines_fromfile(std::string file_path);// here !
 bool FileExists(std::string path);
 bool DirExists(std::string path);
+std::vector<std::string> split(std::string str, std::string pattern);
 
 #endif

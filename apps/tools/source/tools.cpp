@@ -4,7 +4,6 @@ std::vector<std::string> ls(std::string path){
     DIR *dp;
     std::vector<std::string> dirs;
     struct dirent *dirp;
-    char dirname[256];
 
     if(
         (dp=opendir(path.c_str())) == NULL)
@@ -26,15 +25,6 @@ std::vector<std::string> ls(std::string path){
     }
     closedir(dp);
     return dirs;
-}
-
-void start(){
-    if(
-        !(access(get_current_dir_name(),W_OK) == 0 )
-    ){
-        std::cout<<"[-] Please ensure you are root or sudors ,because you don't have access to operate this folder"<<std::endl;
-        exit(-3);
-    }
 }
 
 void c_mkdir(std::string path){
@@ -81,4 +71,24 @@ bool DirExists(std::string path)
         return false;
     }
     return true;
+}
+
+std::vector<std::string> split(std::string str, std::string pattern){
+    std::vector<std::string> res;
+    if(str == "")
+        return res;
+    //在字符串末尾也加入分隔符，方便截取最后一段
+    std::string strs = str + pattern;
+    size_t pos = strs.find(pattern);
+
+    while(pos != strs.npos)
+    {
+        std::string temp = strs.substr(0, pos);
+        res.push_back(temp);
+        //去掉已分割的字符串,在剩下的字符串中进行分割
+        strs = strs.substr(pos+1, strs.size());
+        pos = strs.find(pattern);
+    }
+
+    return res;
 }

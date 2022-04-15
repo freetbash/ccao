@@ -8,7 +8,7 @@
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/bash/projects/ccao/out/debug/bin/ccao",
+            "program": "/home/bash/projects/ccao/out/debug/ccao",
             "args": ["make"],
             "stopAtEntry": false,
             "cwd": "/home/bash/projects/ccao/teststar",

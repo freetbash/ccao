@@ -87,7 +87,7 @@ void Cmd::compare(){
     }
     if(this->op == "build"){
         this->check_project();
-        this->build(project->main);
+        this->build();
         exit(3);
     }
     if(this->op == "make"){
@@ -181,7 +181,6 @@ void Cmd::version(){
 }
 
 void Cmd::newproject(std::string project_name){
-    int status;
     std::string cwd;
     cwd = root + "/" + project_name;
     // Porject
@@ -225,47 +224,28 @@ int main(int argc, char *argv[]){
     
     // Apps
     c_mkdir((cwd+"/apps"));
-    
-    // Depends
-    c_mkdir((cwd+"/depends"));
-    
     // out
     c_mkdir((cwd+"/out"));
-        // temp
-        c_mkdir((cwd+"/out/temp"));
-        // stars
-        c_mkdir((cwd+"/out/stars"));
-            // code
-            c_mkdir((cwd+"/out/stars/code"));
-            // libs
-            c_mkdir((cwd+"/out/stars/libs"));
         // debug
         c_mkdir((cwd+"/out/debug"));
-            c_mkdir((cwd+"/out/debug/bin"));
-            c_mkdir((cwd+"/out/debug/libs"));
-                c_mkdir((cwd+"/out/debug/libs/own"));
-                c_mkdir((cwd+"/out/debug/libs/other"));
         // release
         c_mkdir((cwd+"/out/release"));
-            c_mkdir((cwd+"/out/release/bin"));
-            c_mkdir((cwd+"/out/release/libs"));
-                c_mkdir((cwd+"/out/release/libs/own"));
-                c_mkdir((cwd+"/out/release/libs/other"));
     // ccao.toml
     std::ofstream ccao;
     ccao.open(cwd+"/ccao.toml",std::ios::out);
     std::stringstream fmt;
     {fmt << R""([project]
 name=")""<<project_name<<R""("
-#version=0.01
+#version="0"
 cppversion="c++11"
 debug=true
-cflag=""#额外参数 默认为空
+cflag="-static "#额外参数 默认为空
+cpp=true # g++ or gcc
 apps=[
     #"app0",
 ]
 depends=[
-    #"test_0"
+    #"test$0"
 ])"";}
     ccao << fmt.str();
     ccao.close();
@@ -281,46 +261,22 @@ void Cmd::clean(){
     // out
     {
         c_mkdir((root+"/out"));
-            // temp
-            c_mkdir((root+"/out/temp"));
-            // stars
-            c_mkdir((root+"/out/stars"));
-                // code
-                c_mkdir((root+"/out/stars/code"));
-                // libs
-                c_mkdir((root+"/out/stars/libs"));
-            // debug
             c_mkdir((root+"/out/debug"));
-                c_mkdir((root+"/out/debug/bin"));
-                c_mkdir((root+"/out/debug/libs"));
-                    c_mkdir((root+"/out/debug/libs/own"));
-                    c_mkdir((root+"/out/debug/libs/other"));
             // release
             c_mkdir((root+"/out/release"));
-                c_mkdir((root+"/out/release/bin"));
-                c_mkdir((root+"/out/release/libs"));
-                    c_mkdir((root+"/out/release/libs/own"));
-                    c_mkdir((root+"/out/release/libs/other"));
     }
 }
 
 void Cmd::install(std::string out_path){
-    if(debug){
-        log(
-            color("[-] This operation need you are in release mode",RED)
-        );
-        return;
-    }
-    std::string target_path = root+"/out/release/bin/"+project->main->name+" ";
-    if(!FileExists(target_path)){
+    if(!FileExists(exe_file_path)){
         if(!debug){
         log(color("[*] elf not found , start build !",BLUE));
-        this->build(project->main);
+        this->build();
         }else{
             log(color("[-] you must be in release mode .",RED));
         }
     }
-    system(("sudo cp "+target_path+out_path).c_str());
+    system(("sudo cp "+exe_file_path+out_path).c_str());
     log(color("[+] "+out_path,GREEN));
 }
 
@@ -355,44 +311,35 @@ void Cmd::newstar(std::string star_name){
     std::stringstream fmt;
     {fmt << R""([star]
 name=")""<<star_name<<R""("
-version=0
+author="root"
+version="0"
+cpp=true # g++ or gcc
+cflag="-static "#额外参数 默认为空
 depends=[
-    #"test_0"
+    #"test$0"
 ])"";}
     star << fmt.str();
     star.close();
 }
 
-void Cmd::build(App *main){
+void Cmd::build(){
     this->clean();
-
-
-    // build depends 先生成依赖 没毛病
-    for(App depend :project->depends){
-        depend.build(libflag,include_path,libray_path);
-    }
-    log(
-        color("[+]All depends "+std::to_string(project->depends.size()),PUPLE)
-    );
-
-    // build your apps
-    for(App app :project->apps){
-        app.build(libflag,include_path,libray_path);
-    }
-    log(
-        color("[+]All apps "+std::to_string(project->apps.size()),PUPLE)
-    );
-
-    // build main_app 
-    
-    //源码
-    std::string source;
-
-    for(std::string c_cpp :main->source){
-        source += root+"/"+main->name+"/source/"+c_cpp+" ";
-    }
     // 将c cpp 路径 拼接到一起
-    std::string compiler("g++ ");
+    std::string link_file("");
+    std::string compiler;if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
+    std::string source("");
+    for(auto _ : project->apps){
+        source+=_.path+"/source/* ";
+        include_path+="-I"+_.path+"/headers ";
+    }{
+        source+=root+"/"+config->name+"/source/* ";
+        include_path+="-I"+root+"/"+config->name+"/headers ";
+        for(auto _:project->depends){
+            include_path+="-I"+_.path+" ";
+            link_file += _.a;
+        }
+    }
+        
 
     std::string cmd(
         compiler
@@ -404,18 +351,17 @@ void Cmd::build(App *main){
         +link_file
         +"-Xlinker '-)' "
         +"-o "
-        +main->out_path+"/"
-        +main->name
-        +" "+extra_cflag
+        +exe_file_path
+        +extra_cflag
     );
     log("[*] "+cmd);
     int status;
     status = system(cmd.c_str());
     if(status != 0){
             exit(status);
-        }
+    }
     log(
-            "[+]Build Ok!  It is here { \n\t"+color(main->out_path+"/"+main->name,GREEN)+" \n} "
+            "[+]Build Ok!  It is here { \n\t"+color(exe_file_path,GREEN)+" \n} "
     );
 }
 
@@ -423,9 +369,9 @@ void Cmd::export_star(Star *star){
     ;
 }
 void Cmd::run_project(){
-    this->build(project->main);
+    this->build();
     system(
-        (project->main->out_path+"/"+project->main->name).c_str()
+        (exe_file_path).c_str()
         );
 
 }

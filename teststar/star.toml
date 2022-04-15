@@ -1,6 +1,9 @@
 [star]
 name="teststar"
-version=0
+version="0"
+cpp=true # g++ or gcc
+cflag="-static "#额外参数 默认为空
+cppversion="c++11"
 depends=[
-    #"1$version"
+    #"test$0"
 ]

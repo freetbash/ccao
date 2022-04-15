@@ -3,23 +3,60 @@
 #include <vars.h>
 void Star::make(){
     std::string cmd;
-    std::cout << "Start build Star" <<this->name<<std::endl;
+    cmd=(
+        "rm -rf "+root+"/out/temp "
+    );
+    system(cmd.c_str());
     c_mkdir(root+"/out/temp");
-    cmd="cp "+root+"/star.toml "+root+"/out/package/";
+    
+    std::cout << "[*]Start build Star " <<this->name<<std::endl;
+    c_mkdir(root+"/out/package/target");
+    cmd="cp "+root+"/headers/* "+root+"/out/package/target -r";
     system(cmd.c_str());
-    c_mkdir(root+"/out/package/libs");
-    cmd ="cp "+root+"/headers "+root+"/out/package -r";
-    system(cmd.c_str());
-    // g++ 
-    std::string _include("");
-    std::string _libs("-( ");
-    // '-(' /home/bash/projects/ccao/out/debug/libs/other/libtoml.a /home/bash/projects/ccao/out/debug/libs/other/libcolorstring.a /home/bash/projects/ccao/out/debug/libs/own/libpublic.a /home/bash/projects/ccao/out/debug/libs/own/libclasses.a /home/bash/projects/ccao/out/debug/libs/own/libtools.a -Xlinker '-)'
-    for(auto _ :this->depends){
-        // for include
-        _libs += ("-l"+_+" ");
-    } // -lasd -lasd -lasdc
+// ar crsT lib1.a cwd.a .cwda
+    std::vector<Depend> depends;
+    for(std::string depend :this->depends){
+            depends.push_back(
+                Depend(depend)
+            );
+    }
+    std::string link_file("");
+    std::string compiler;if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
+    include_path+="-I"+root+"/headers ";
+    cflag="-std="+this->cppversion+" ";// c++11
 
+    for(auto _:depends){
+        include_path+="-I"+_.path+" ";
+        link_file += _.a;
+    }
+        
+    for(std::string source:ls(root+"/source")){
+        exe_file_path += root+"/out/temp/"+source+".o ";
+        cmd=(
+            compiler
+            +"-c "
+            +root+"/source/"+source+" "
+            +cflag
+            +include_path
+            +"-o "
+            +root+"/out/temp/"+source+".o "
+            +extra_cflag
+        );
+        std::cout << "[*]"<<cmd<<std::endl;
+        system(cmd.c_str());
+    }
+    
+    
+    
 
-    cmd="rm "+root+"/out/temp -rf";
+    cmd=(
+        "ar crsT "
+        +root+"/out/package/target/lib"+this->name+".a "
+        +exe_file_path
+        +link_file
+    );
+    std::cout << "[*]"<<cmd<<std::endl;
     system(cmd.c_str());
+
+    std::cout << "[+] Build Star" <<this->name<<" Successfully !"<<std::endl;
 }

@@ -4,7 +4,8 @@
 #include <vector>
 class Star{
 public:
-    int version;
+    std::string version;
+    std::string cppversion;
     std::string name;
     std::vector<std::string> depends;
     void make();

@@ -13,7 +13,7 @@ public:
     void newproject(std::string project_name);// ccao new project_name
     void newapp(std::string app_name);// ccao new app app_name
     void newstar(std::string star_name);
-    void build(App *main);// ccao build 
+    void build();// ccao build 
     void export_star(Star *star);
     void clean();
     void install(std::string out_path);

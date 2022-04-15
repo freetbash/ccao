@@ -14,7 +14,5 @@ apps=[
 ]
 depends=[
     #"1$version"
-    "toml",
-    "debugger",
-    "colorstring"
+    "toml$0",
 ]
