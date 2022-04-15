@@ -95,11 +95,7 @@ void Cmd::compare(){
         star->make();
         exit(123);
     }
-    if(this->op == "export"){
-        this->check_star();
-        this->export_star(star);
-        exit(3);
-    }
+
     // if(this->op == "export"){
     //     this->check_status();
 
@@ -164,9 +160,14 @@ void Cmd::show_help(){
         +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
         +color("new app app_name",BLUE)+"    // create a app\n\t"
-        +color("export",BLUE)+" // export your whole star to a tar.xz\n\t"
+        +color("add star_path",BLUE)+" // add a star to ~/.ccao/stars \n\t"
         +color("make",BLUE)+" // generate you star to out\n\t"
+        +color("list",BLUE)+" // list your all installed stars\n\t"
+        +color("cat star",BLUE)+" // show you star's all version\n\t"
+        +color("remove star",BLUE)+" // remove a star but include all versions\n\t"
+        +color("remove star version",BLUE)+" // remove a targeted version star\n\t"
         +color("test",BLUE)+" // test\n\n"
+        
         +"Special with args:\n\t"
         +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
         +color("version",YELLOW)+"     // print the version of ccao\n\n"
@@ -364,14 +365,26 @@ void Cmd::build(){
             "[+]Build Ok!  It is here { \n\t"+color(exe_file_path,GREEN)+" \n} "
     );
 }
-
-void Cmd::export_star(Star *star){
-    ;
-}
 void Cmd::run_project(){
     this->build();
     system(
         (exe_file_path).c_str()
         );
+
+}
+
+void Cmd::add(std::string star_path){
+
+}
+void Cmd::cat(std::string star){
+
+}
+void Cmd::list(){
+
+}
+void Cmd::remove(std::string star){
+
+}
+void Cmd::remove(std::string star,std::string version){
 
 }
