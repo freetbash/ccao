@@ -1,6 +1,7 @@
 #include <Star.h>
 #include <tools.h>
 #include <vars.h>
+#include <unistd.h>
 void Star::make(){
     std::string cmd;
     cmd=(
@@ -27,13 +28,23 @@ void Star::make(){
     include_path+="-I"+root+"/headers ";
     cflag="-std="+this->cppversion+" ";// c++11
 
+    chdir((root+"/out/temp").c_str());
     for(auto _:depends){
         include_path+="-I"+_.path+" ";
-        link_file += _.a;
+        cmd=("cp "+home+"/stars/"+_.name+"/"+_.version+"/lib"+_.name+".a "+root+"/out/temp ");
+        system(cmd.c_str());
+        log("[*] "+cmd);
+        cmd=("ar x lib"+_.name+".a ");
+        system(cmd.c_str());
+        log("[*] "+cmd);
+        cmd=("rm lib"+_.name+".a ");
+        system(cmd.c_str());
+        log("[*] "+cmd);
     }
-        
+    
+    
+
     for(std::string source:ls(root+"/source")){
-        exe_file_path += root+"/out/temp/"+source+".o ";
         cmd=(
             compiler
             +"-c "
@@ -47,14 +58,13 @@ void Star::make(){
         std::cout << "[*]"<<cmd<<std::endl;
         system(cmd.c_str());
     }
-    
-    
-    
+    for(auto _:ls(root+"/out/temp")){
+        link_file += _+" ";
+    }
 
     cmd=(
-        "ar crsT "
+        "ar crsv "
         +root+"/out/package/lib"+this->name+".a "
-        +exe_file_path
         +link_file
     );
     std::cout << "[*]"<<cmd<<std::endl;
