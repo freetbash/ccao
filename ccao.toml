@@ -10,9 +10,9 @@ apps=[
     #"app1",
     "public",
     "classes",
-    "tools"
+    "tools",
+    "toml"
 ]
 depends=[
     #"1$version"
-    "toml$0",
 ]
