@@ -68,7 +68,6 @@ void Cmd::compare(){
         exit(2);
     }
     if(this->op == "clean"){
-        this->check_project();
         this->clean();
         exit(11);
     }
@@ -121,6 +120,19 @@ void Cmd::compare(){
         }
         exit(1);
     }
+    if(this->op == "test"){
+        this->check_star();
+        if(this->args.size()==1){
+            star->test("");
+        }else{
+            std::string args("");
+            for(auto _:this->args){
+                args+= _ +" ";
+            }
+            star->test(args);
+        }
+        exit(1);
+    }
     if(this->op == "get"){
         if(this->args.size()==1){
             this->get(this->args[0]);
@@ -159,7 +171,7 @@ void Cmd::show_help(){
         +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\t"
         +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
-        +color("add star_path",BLUE)+" // add a star to ~/.ccao/stars \n\t"
+        +color("add star_path",BLUE)+" // add a star to ~/.ccao/stars // you can ccao add . \n\t"
         +color("get star",BLUE)+" // get a star from internet\n\t"
         +color("get star version",BLUE)+" // for a concrete version\n\t"
         +color("make",BLUE)+" // generate you star to out\n\t"
@@ -167,7 +179,7 @@ void Cmd::show_help(){
         +color("cat star",BLUE)+" // show you star's all version\n\t"
         +color("remove star",BLUE)+" // remove a star but include all versions\n\t"
         +color("remove star version",BLUE)+" // remove a targeted version star\n\t"
-        +color("test",BLUE)+" // test\n\n"
+        +color("test",BLUE)+" // test star\n\n"
         
         +"Special with args:\n\t"
         +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
@@ -256,17 +268,30 @@ depends=[
 }   
 
 void Cmd::clean(){
-    
-    system(
-        ("rm -rf "+root+"/out ").c_str()
-    );
-    // out
-    {
-        c_mkdir((root+"/out"));
-            c_mkdir((root+"/out/debug"));
-            // release
-            c_mkdir((root+"/out/release"));
+    if(isProject){
+        system(
+            ("rm -rf "+root+"/out ").c_str()
+        );
+        // out
+        {
+            c_mkdir((root+"/out"));
+                c_mkdir((root+"/out/debug"));
+                // release
+                c_mkdir((root+"/out/release"));
+        }
+    }else if (isStar){
+        system(
+            ("rm -rf "+root+"/out ").c_str()
+        );
+        {
+                c_mkdir(root+"/out");
+                c_mkdir(root+"/out/package");
+                c_mkdir(root+"/out/temp");
+        }
+    }else{
+        log("[-] Here is not a project or star. ");
     }
+    
 }
 
 void Cmd::install(std::string out_path){
@@ -323,6 +348,19 @@ depends=[
 ])"";}
     star << fmt.str();
     star.close();
+
+    std::ofstream test;
+    test.open(cwd+"/test/"+star_name+".cpp",std::ios::out);
+    std::stringstream ffmt;
+    {ffmt << R""(#include <iostream>
+int main(int argc, char const *argv[])
+{
+    // test code here !
+    return 0;
+}
+)"";}
+    test << ffmt.str();
+    test.close();
 }
 
 void Cmd::build(){
@@ -376,7 +414,35 @@ void Cmd::run_project(){
 }
 
 void Cmd::add(std::string star_path){
+    std::string star_ = star_path + "/star.toml";
+    if(!FileExists(star_)){
+        log("[-] your path is not for star!");
+        exit(1);
+    }
+    std::string star_name;
+    std::string star_version;
+    const toml::value data=toml::parse(star_);
+    // 配置[project]
+    const auto star_data = toml::find(data,"star");
+    star_name = toml::find
+        <std::string>
+    (star_data,"name");
 
+    star_version = toml::find
+        <std::string>
+    (star_data,"version");
+
+    std::string cmd(
+        "mkdir -p "+home+"/stars/"+star_name+"/"+star_version+" "
+    );
+    log("[*] "+cmd);
+    system(cmd.c_str());
+    cmd=(
+        "cp -r "+star_path+"/* "+home+"/stars/"+star_name+"/"+star_version+"/ "
+    );
+    log("[*] "+cmd);
+    system(cmd.c_str());
+    this->cat(star_name);
 }
 void Cmd::cat(std::string star){
     if(DirExists(home+"/stars/"+star)){

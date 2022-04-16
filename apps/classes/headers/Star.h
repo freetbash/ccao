@@ -9,6 +9,7 @@ public:
     std::string name;
     std::vector<std::string> depends;
     void make();
+    void test(std::string args);
 };
 
 

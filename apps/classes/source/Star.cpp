@@ -31,15 +31,19 @@ void Star::make(){
     chdir((root+"/out/temp").c_str());
     for(auto _:depends){
         include_path+="-I"+_.path+" ";
+
         cmd=("cp "+home+"/stars/"+_.name+"/"+_.version+"/lib"+_.name+".a "+root+"/out/temp ");
-        system(cmd.c_str());
         log("[*] "+cmd);
+        system(cmd.c_str());
+        
         cmd=("ar x lib"+_.name+".a ");
-        system(cmd.c_str());
         log("[*] "+cmd);
+        system(cmd.c_str());
+        
         cmd=("rm lib"+_.name+".a ");
-        system(cmd.c_str());
         log("[*] "+cmd);
+        system(cmd.c_str());
+        
     }
     
     
@@ -71,4 +75,26 @@ void Star::make(){
     system(cmd.c_str());
 
     std::cout << "[+] Build Star" <<this->name<<" Successfully !"<<std::endl;
+}
+
+
+void Star::test(std::string args){
+    this->make();
+    std::string cmd(
+        "g++ "
+        +root+"/test/test.cpp "
+        +"-I"+root+"/out/package "
+        +"-L"+root+"/out/package "
+        +"-l"+this->name+" "
+        +"-o "+root+"/test/a.out "
+    );
+
+    std::cout << "[*]"<<cmd<<std::endl;
+    system(cmd.c_str());
+    
+    cmd = (root+"/test/a.out "+args);
+    std::cout << "[*]"<<cmd<<std::endl;
+    std::cout << "[+]Results => \n"<<std::endl;
+    system(cmd.c_str());
+    
 }
