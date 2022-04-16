@@ -10,7 +10,7 @@ g++ \
    -I./apps/classes/headers \
    -I./apps/public/headers \
    -I./apps/tools/headers \
-   -I./apps/tools/toml/headers \
+   -I./apps/toml/headers \
    -I./ccao/headers \
    -o ./bin/ccao -static -std=c++11
 
