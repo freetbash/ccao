@@ -20,7 +20,7 @@ public:
     void version();
     void check_project();
     void check_star();
-    void run_project();
+    void run_project(std::string args);
     void add(std::string star_path);
     void cat(std::string star);
     void get(std::string star);

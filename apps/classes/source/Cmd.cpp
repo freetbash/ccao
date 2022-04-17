@@ -59,7 +59,11 @@ void Cmd::compare(){
     if(this->op == "run"){
         if(this->args.size()==0){
             this->check_project();
-            this->run_project();
+            std::string args("");
+            for(auto _:this->args){
+                args+= _ +" ";
+            }
+            this->run_project(args);
             exit(23);
         }
     }
@@ -164,26 +168,26 @@ void Cmd::show_help(){
     std::string help_text = 
         color("usage:",GREEN) +" ccao <command> [<args>]\n"
         +"Project commands:\n\t"
-        +color("new project_name",BLUE)+"    // create a project\n\t"
-        +color("build",YELLOW)+"       // build your all apps and your main function. Please check your debug of ccao.toml\n\t"
-        +color("run",YELLOW)+"     // build and run your app in debug or release\n\t"
-        +color("clean",YELLOW)+"       // clean your previous build lib or files\n\t"
-        +color("install",YELLOW)+"     // cp your target elf to /usr/local/bin/\n\t"
+        +color("new project_name",BLUE)+"       // create a project\n\t"
+        +color("build",YELLOW)+"                // build your all apps and your main function. Please check your debug of ccao.toml\n\t"
+        +color("run arg1 arg2 args",YELLOW)+"   // build and run your app in debug or release\n\t"
+        +color("clean",YELLOW)+"                // clean your previous build lib or files\n\t"
+        +color("install",YELLOW)+"              // cp your target elf to /usr/local/bin/\n\t"
         +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
-        +color("add star_path",BLUE)+" // add a star to ~/.ccao/stars // you can ccao add . \n\t"
-        +color("get star",BLUE)+" // get a star from internet\n\t"
-        +color("get star version",BLUE)+" // for a concrete version\n\t"
-        +color("make",BLUE)+" // generate you star to out\n\t"
-        +color("list",BLUE)+" // list your all installed stars\n\t"
-        +color("cat star",BLUE)+" // show you star's all version\n\t"
-        +color("remove star",BLUE)+" // remove a star but include all versions\n\t"
-        +color("remove star version",BLUE)+" // remove a targeted version star\n\t"
-        +color("test",BLUE)+" // test star\n\n"
+        +color("add star_path",BLUE)+"          // add a star to ~/.ccao/stars // you can ccao add . \n\t"
+        +color("get star",BLUE)+"               // get a star from internet\n\t"
+        +color("get star version",BLUE)+"       // for a concrete version\n\t"
+        +color("make",BLUE)+"                   // generate you star to out\n\t"
+        +color("list",BLUE)+"                   // list your all installed stars\n\t"
+        +color("cat star",BLUE)+"               // show you star's all version\n\t"
+        +color("remove star",BLUE)+"            // remove a star but include all versions\n\t"
+        +color("remove star version",BLUE)+"    // remove a targeted version star\n\t"
+        +color("test",BLUE)+"                   // test star\n\n"
         
         +"Special with args:\n\t"
-        +color("help",YELLOW)+"        // print helpful text of ccao\n\t"
-        +color("version",YELLOW)+"     // print the version of ccao\n\n"
+        +color("help",YELLOW)+"                  // print helpful text of ccao\n\t"
+        +color("version",YELLOW)+"               // print the version of ccao\n\n"
         
 
         +color("Author:\n\tThis tool is made by Freet-Bash.\n\tIf you want to get into the development, please go to github or gitee and fork this repo.\n\tIf you have other problems ,please get in touch with me.\n\tHere is my email : 3141495167@qq.com\n",HIGH_LIGHT);
@@ -199,6 +203,7 @@ void Cmd::newproject(std::string project_name){
     cwd = root + "/" + project_name;
     // Porject
     c_mkdir(cwd);
+    
     // Main App
     std::string main_app = cwd+ "/"+project_name;
         c_mkdir(main_app);
@@ -341,6 +346,7 @@ name=")""<<star_name<<R""("
 author="root"
 email=""
 version="0"
+cppversion="c++11"
 cpp=true # g++ or gcc
 cflag="-static "#额外参数 默认为空
 depends=[
@@ -350,7 +356,7 @@ depends=[
     star.close();
 
     std::ofstream test;
-    test.open(cwd+"/test/"+star_name+".cpp",std::ios::out);
+    test.open(cwd+"/test/test.cpp",std::ios::out);
     std::stringstream ffmt;
     {ffmt << R""(#include <iostream>
 int main(int argc, char const *argv[])
@@ -405,10 +411,10 @@ void Cmd::build(){
             "[+]Build Ok!  It is here { \n\t"+color(exe_file_path,GREEN)+" \n} "
     );
 }
-void Cmd::run_project(){
+void Cmd::run_project(std::string args){
     this->build();
     system(
-        (exe_file_path).c_str()
+        (exe_file_path+ " "+args).c_str()
         );
 
 }
