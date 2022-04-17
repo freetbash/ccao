@@ -24,7 +24,6 @@ void Star::make(){
             );
     }
     std::string link_file("");
-    std::string compiler;if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
     include_path+="-I"+root+"/headers ";
     cflag="-std="+this->cppversion+" ";// c++11
 
@@ -81,7 +80,7 @@ void Star::make(){
 void Star::test(std::string args){
     this->make();
     std::string cmd(
-        "g++ "
+        compiler
         +root+"/test/test.cpp "
         +"-I"+root+"/out/package "
         +"-L"+root+"/out/package "

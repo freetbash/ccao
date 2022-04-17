@@ -11,6 +11,8 @@ int main(int argc, char *argv[]){
         PROJECT();
     }
     
+    if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
+    if(ccache){compiler = "ccache "+compiler;}
     Cmd cmd = Cmd(argc,argv);
     // argc 传递有问题
     cmd.compare();

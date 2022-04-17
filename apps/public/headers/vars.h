@@ -21,5 +21,7 @@ extern Cproject *project;
 extern Star     *star;
 extern std::string help_text;
 extern std::string home;
+extern std::string compiler;
+extern bool ccache;
 
 #endif

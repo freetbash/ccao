@@ -260,6 +260,7 @@ cppversion="c++11"
 debug=true
 cflag="-static "#额外参数 默认为空
 cpp=true # g++ or gcc
+ccache=false # 启用ccache 高速编译
 apps=[
     #"app0",
 ]
@@ -346,6 +347,7 @@ name=")""<<star_name<<R""("
 author="root"
 email=""
 version="0"
+ccache=false # 启用ccache 高速编译
 cppversion="c++11"
 cpp=true # g++ or gcc
 cflag="-static "#额外参数 默认为空
@@ -373,7 +375,6 @@ void Cmd::build(){
     this->clean();
     // 将c cpp 路径 拼接到一起
     std::string link_file("");
-    std::string compiler;if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
     std::string source("");
     for(auto _ : project->apps){
         source+=_.path+"/source/* ";

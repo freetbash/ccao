@@ -50,6 +50,10 @@ void CONFIG(){
         cpp = toml::find
             <bool>
         (project_data,"cpp");
+        
+        ccache = toml::find
+            <bool>
+        (project_data,"ccache");
     } 
     
     if(isStar){
@@ -81,5 +85,8 @@ void CONFIG(){
         star->cppversion = toml::find
             <std::string>
         (star_data,"cppversion");
+        ccache = toml::find
+            <bool>
+        (star_data,"ccache");
     }
 }
