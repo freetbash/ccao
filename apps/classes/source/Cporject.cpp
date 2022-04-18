@@ -26,6 +26,7 @@ void PROJECT(){
         cflag ="-g -Wall ";
         exe_file_path = root+"/out/debug/"+config->name+" ";
     }else{
+        cflag = "-O3 ";
         exe_file_path = root+"/out/release/"+config->name+" ";
     }
     cflag+="-std="+config->cppversion+" ";// c++11

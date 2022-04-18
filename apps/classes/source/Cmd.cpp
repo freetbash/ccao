@@ -286,6 +286,7 @@ void Cmd::clean(){
                 c_mkdir((root+"/out/debug"));
                 // release
                 c_mkdir((root+"/out/release"));
+                c_mkdir((root+"/out/temp"));
         }
     }else if (isStar){
         system(
