@@ -11,6 +11,8 @@ std::string libray_path;
 std::string compiler;
 std::string home;
 std::string server;
+std::string os;
+std::string arch;
 bool isProject;
 bool cpp;
 bool isStar;

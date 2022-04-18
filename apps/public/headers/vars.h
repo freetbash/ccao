@@ -23,6 +23,8 @@ extern Star     *star;
 extern std::string help_text;
 extern std::string home;
 extern std::string compiler;
+extern std::string os;
+extern std::string arch;
 extern std::string server;
 extern bool ccache;
 

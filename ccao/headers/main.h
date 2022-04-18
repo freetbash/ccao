@@ -5,5 +5,6 @@
 #include <Cconfig.h>
 #include <Cproject.h>
 #include <tools.h>
+void config_init();
 void init();
 #endif
