@@ -11,7 +11,19 @@ int main(int argc, char *argv[]){
         PROJECT();
     }
     
-    if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
+    if(cpp==true){
+        if(termux){
+            compiler="aarch64-linux-gnu-g++ ";
+        }else{
+            compiler="g++ ";
+        }
+    }else{
+        if(termux){
+            compiler="aarch64-linux-gnu-gcc ";
+        }else{
+            compiler="gcc ";
+        }
+    }
     if(ccache){compiler = "ccache "+compiler;}
     server = read_file(home+"/server");
 

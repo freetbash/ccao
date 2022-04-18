@@ -54,6 +54,9 @@ void CONFIG(){
         ccache = toml::find
             <bool>
         (project_data,"ccache");
+        termux = toml::find
+            <bool>
+        (project_data,"termux");
     } 
     
     if(isStar){
@@ -88,5 +91,8 @@ void CONFIG(){
         ccache = toml::find
             <bool>
         (star_data,"ccache");
+        termux = toml::find
+            <bool>
+        (star_data,"termux");
     }
 }

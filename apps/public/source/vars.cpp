@@ -15,6 +15,7 @@ bool isProject;
 bool cpp;
 bool isStar;
 bool ccache;
+bool termux;
 Cconfig *config;
 Cproject *project;
 Star *star;

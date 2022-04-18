@@ -14,6 +14,7 @@ extern std::string libray_path;
 extern bool dynamic_app;
 extern bool dynamic_depend;
 extern bool cpp;
+extern bool termux;
 extern bool isProject;
 extern bool isStar;
 extern Cconfig *config;

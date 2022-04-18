@@ -24,10 +24,15 @@ void PROJECT(){
     // 拼接 主程序的 头文件目录 
     if(debug){
         cflag ="-g -Wall ";
-        exe_file_path = root+"/out/debug/"+config->name+" ";
+        exe_file_path = root+"/out/debug/"+config->name;
     }else{
         cflag = "-O3 ";
-        exe_file_path = root+"/out/release/"+config->name+" ";
+        exe_file_path = root+"/out/release/"+config->name;
+    }
+    if(termux){
+        exe_file_path+="_aarch64 ";
+    }else{
+        exe_file_path+=" ";
     }
     cflag+="-std="+config->cppversion+" ";// c++11
     

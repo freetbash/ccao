@@ -263,6 +263,7 @@ debug=true
 cflag="-static "#额外参数 默认为空
 cpp=true # g++ or gcc
 ccache=false # 启用ccache 高速编译
+termux=false # 为aarch64提供支持 需要安装 aarch64-linux-gnu-g++
 apps=[
     #"app0",
 ]
