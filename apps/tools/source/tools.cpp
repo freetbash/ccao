@@ -1,5 +1,13 @@
 #include <tools.h>
 // tools
+#include <regex>
+
+std::string read_file(std::string file_path){
+    std::ifstream in(file_path);
+    std::ostringstream tmp;
+    tmp << in.rdbuf();
+    return tmp.str();
+}
 std::vector<std::string> ls(std::string path){
     DIR *dp;
     std::vector<std::string> dirs;
@@ -73,24 +81,12 @@ bool DirExists(std::string path)
     return true;
 }
 
-std::vector<std::string> split(std::string str, std::string pattern){
-    std::vector<std::string> res;
-    if(str == "")
-        return res;
-    //在字符串末尾也加入分隔符，方便截取最后一段
-    std::string strs = str + pattern;
-    size_t pos = strs.find(pattern);
-
-    while(pos != strs.npos)
-    {
-        std::string temp = strs.substr(0, pos);
-        res.push_back(temp);
-        //去掉已分割的字符串,在剩下的字符串中进行分割
-        strs = strs.substr(pos+1, strs.size());
-        pos = strs.find(pattern);
-    }
-
-    return res;
+std::vector<std::string> split(std::string s, std::string d) { 
+	std::string text = s;
+	std::regex ws_re(d); 
+	// whitespace 
+	std::vector<std::string> tokens(std::sregex_token_iterator(text.begin(), text.end(), ws_re, -1), std::sregex_token_iterator()); 
+	return tokens;
 }
 std::vector<std::string> readlines_fromfile(std::string file_path){
     std::vector<std::string> temp;

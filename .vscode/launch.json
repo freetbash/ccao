@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/bash/projects/ccao/out/debug/ccao",
-            "args": ["list"],
+            "args": ["build"],
             "stopAtEntry": false,
             "cwd": "/home/bash/projects/ccao/",
             "environment": [],

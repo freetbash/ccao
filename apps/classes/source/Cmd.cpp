@@ -249,6 +249,8 @@ int main(int argc, char *argv[]){
         c_mkdir((cwd+"/out/debug"));
         // release
         c_mkdir((cwd+"/out/release"));
+        // temp
+        c_mkdir((cwd+"/out/temp"));
     // ccao.toml
     std::ofstream ccao;
     ccao.open(cwd+"/ccao.toml",std::ios::out);
@@ -335,6 +337,9 @@ void Cmd::newstar(std::string star_name){
     c_mkdir(cwd);
     c_mkdir(cwd+"/out");
     c_mkdir(cwd+"/headers");
+    system(
+        ("echo 'help document' > "+cwd+"/headers/help").c_str()
+    );
     c_mkdir(cwd+"/source");
     c_mkdir(cwd+"/out/package");
     c_mkdir(cwd+"/test");
@@ -372,27 +377,53 @@ int main(int argc, char const *argv[])
 }
 
 void Cmd::build(){
-    this->clean();
     // 将c cpp 路径 拼接到一起
     std::string link_file("");
-    std::string source("");
+    std::string source_o;
+    std::string cmd;
+    // for headers
+    for(auto _ : project->apps){include_path+="-I"+_.path+"/headers ";}
+    for(auto _:project->depends){include_path+="-I"+_.path+" ";link_file += _.a;}
+    {include_path+="-I"+root+"/"+config->name+"/headers ";}
+
+    // compile each app 
     for(auto _ : project->apps){
-        source+=_.path+"/source/* ";
-        include_path+="-I"+_.path+"/headers ";
-    }{
-        source+=root+"/"+config->name+"/source/* ";
-        include_path+="-I"+root+"/"+config->name+"/headers ";
-        for(auto _:project->depends){
-            include_path+="-I"+_.path+" ";
-            link_file += _.a;
+        for(auto cc: ls(_.path+"/source")){
+            cmd=(
+                compiler
+                +"-c "
+                +_.path+"/source/"+cc+" "
+                +include_path
+                +"-o "
+                +root+"/out/temp/"+cc+".o "
+                +cflag
+                +extra_cflag
+            );
+            log("[*] "+cmd);
+            system(cmd.c_str());
         }
     }
-        
+    {
+        for(auto cc:ls(root+"/"+config->name+"/source")){
+            cmd=(
+                compiler
+                +"-c "
+                +root+"/"+config->name+"/source/"+cc+" "
+                +include_path
+                +"-o "
+                +root+"/out/temp/"+cc+".o "
+                +cflag
+                +extra_cflag
+            );
+            log("[*] "+cmd);
+            system(cmd.c_str());
+        }
+    }
 
-    std::string cmd(
+    cmd=(
         compiler
-        +source
-        +cflag
+        +root+"/out/temp/* "
+        
         +include_path
         +"-Xlinker '-(' "
         // -Xlinker "-("  /home/bash/projects/chameleon/out/debug/libs/own/libviews.a -Xlinker "-)" 
@@ -400,6 +431,7 @@ void Cmd::build(){
         +"-Xlinker '-)' "
         +"-o "
         +exe_file_path
+        +cflag
         +extra_cflag
     );
     log("[*] "+cmd);
@@ -483,7 +515,8 @@ void Cmd::remove(std::string star,std::string version){
 }
 
 void Cmd::get(std::string star){
-
+    // /star_name/last < version
+    // std::string star_version = requst.get();
 }
 void Cmd::get(std::string star,std::string version){
 

@@ -10,6 +10,7 @@ std::string include_path;
 std::string libray_path;
 std::string compiler;
 std::string home;
+std::string server;
 bool isProject;
 bool cpp;
 bool isStar;

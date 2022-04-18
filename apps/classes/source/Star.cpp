@@ -4,10 +4,6 @@
 #include <unistd.h>
 void Star::make(){
     std::string cmd;
-    cmd=(
-        "rm -rf "+root+"/out/temp "
-    );
-    system(cmd.c_str());
     c_mkdir(root+"/out/temp");
     cmd=(
         "cp "+root+"/star.toml "+root+"/out/package/star.toml "

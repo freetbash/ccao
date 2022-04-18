@@ -10,10 +10,12 @@
 #include <iostream>
 #include <dirent.h>
 #include <colors.h>
+
 // toml
 #include <toml.h>
 
 // tools
+std::string read_file(std::string file_path);
 void c_mkdir(std::string path);
 void check_error(int status);
 void log(std::string msg);

@@ -13,6 +13,8 @@ int main(int argc, char *argv[]){
     
     if(cpp==true){compiler="g++ ";}else{compiler="gcc ";}
     if(ccache){compiler = "ccache "+compiler;}
+    server = read_file(home+"/server");
+
     Cmd cmd = Cmd(argc,argv);
     // argc 传递有问题
     cmd.compare();
@@ -21,6 +23,8 @@ void init(){
     printf("[*] Initing..... CCAO\n");
 
     c_mkdir(home);
-    
+    system(
+        ("echo 'http://82.157.65.112:3147/' >"+home+"/server").c_str()
+    );
     c_mkdir(home+"/stars");
 }

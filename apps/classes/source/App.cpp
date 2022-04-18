@@ -9,7 +9,7 @@ App::App(std::string name){
 }
 
 Depend::Depend(std::string name_version){
-    auto temp = split(name_version,"$");
+    auto temp = split(name_version,"\\$");
     if(temp.size()==2){
         this->name = temp[0];
         this->version = temp[1];
