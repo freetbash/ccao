@@ -5,9 +5,9 @@ void config_init(){
     printf("[*] Initing..... CCAO\n");
 
     c_mkdir(home);
-    system(
+    check_error(system(
         ("echo 'http://82.157.65.112:3147/' >"+home+"/server").c_str()
-    );
+    ));
     c_mkdir(home+"/stars");
 }
 void init(){

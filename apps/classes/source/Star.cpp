@@ -8,10 +8,10 @@ void Star::make(){
     cmd=(
         "cp "+root+"/star.toml "+root+"/out/package/star.toml "
     );
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
     std::cout << "[*]Start build Star " <<this->name<<std::endl;
     cmd="cp "+root+"/headers/* "+root+"/out/package -r";
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
 // ar crsT lib1.a cwd.a .cwda
     std::vector<Depend> depends;
     for(std::string depend :this->depends){
@@ -29,15 +29,15 @@ void Star::make(){
 
         cmd=("cp "+home+"/stars/"+_.name+"/"+_.version+"/lib"+_.name+".a "+root+"/out/temp ");
         log("[*] "+cmd);
-        system(cmd.c_str());
+        check_error(system(cmd.c_str()));
         
         cmd=("ar x lib"+_.name+".a ");
         log("[*] "+cmd);
-        system(cmd.c_str());
+        check_error(system(cmd.c_str()));
         
         cmd=("rm lib"+_.name+".a ");
         log("[*] "+cmd);
-        system(cmd.c_str());
+        check_error(system(cmd.c_str()));
         
     }
     
@@ -55,7 +55,7 @@ void Star::make(){
             +extra_cflag
         );
         std::cout << "[*]"<<cmd<<std::endl;
-        system(cmd.c_str());
+        check_error(system(cmd.c_str()));
     }
     for(auto _:ls(root+"/out/temp")){
         link_file += _+" ";
@@ -67,7 +67,7 @@ void Star::make(){
         +link_file
     );
     std::cout << "[*]"<<cmd<<std::endl;
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
 
     std::cout << "[+] Build Star" <<this->name<<" Successfully !"<<std::endl;
 }
@@ -75,21 +75,25 @@ void Star::make(){
 
 void Star::test(std::string args){
     this->make();
+    std::string s=" ";
+    if(debug){
+        s=" -g -Wall ";
+    }
     std::string cmd(
         compiler
         +root+"/test/test.cpp "
         +"-I"+root+"/out/package "
         +"-L"+root+"/out/package "
-        +"-l"+this->name+" "
+        +"-l"+this->name+s
         +"-o "+root+"/test/a.out "
     );
 
     std::cout << "[*]"<<cmd<<std::endl;
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
     
     cmd = (root+"/test/a.out "+args);
     std::cout << "[*]"<<cmd<<std::endl;
     std::cout << "[+]Results => \n"<<std::endl;
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
     
 }

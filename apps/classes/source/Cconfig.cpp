@@ -94,5 +94,8 @@ void CONFIG(){
         termux = toml::find
             <bool>
         (star_data,"termux");
+        debug=toml::find
+            <bool>
+        (star_data,"debug");
     }
 }

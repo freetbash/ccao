@@ -278,9 +278,9 @@ depends=[
 
 void Cmd::clean(){
     if(isProject){
-        system(
+        check_error(system(
             ("rm -rf "+root+"/out ").c_str()
-        );
+        ));
         // out
         {
             c_mkdir((root+"/out"));
@@ -290,9 +290,9 @@ void Cmd::clean(){
                 c_mkdir((root+"/out/temp"));
         }
     }else if (isStar){
-        system(
+        check_error(system(
             ("rm -rf "+root+"/out ").c_str()
-        );
+        ));
         {
                 c_mkdir(root+"/out");
                 c_mkdir(root+"/out/package");
@@ -313,7 +313,7 @@ void Cmd::install(std::string out_path){
             log(color("[-] you must be in release mode .",RED));
         }
     }
-    system(("sudo cp "+exe_file_path+out_path).c_str());
+    check_error(system(("sudo cp "+exe_file_path+out_path).c_str()));
     log(color("[+] "+out_path,GREEN));
 }
 
@@ -339,9 +339,9 @@ void Cmd::newstar(std::string star_name){
     c_mkdir(cwd);
     c_mkdir(cwd+"/out");
     c_mkdir(cwd+"/headers");
-    system(
+    check_error(system(
         ("echo 'help document' > "+cwd+"/headers/help").c_str()
-    );
+    ));
     c_mkdir(cwd+"/source");
     c_mkdir(cwd+"/out/package");
     c_mkdir(cwd+"/test");
@@ -354,6 +354,7 @@ name=")""<<star_name<<R""("
 author="root"
 email=""
 version="0"
+debug=true
 ccache=false # 启用ccache 高速编译
 cppversion="c++11"
 cpp=true # g++ or gcc
@@ -402,7 +403,7 @@ void Cmd::build(){
                 +extra_cflag
             );
             log("[*] "+cmd);
-            system(cmd.c_str());
+            check_error(system(cmd.c_str()));
         }
     }
     {
@@ -418,7 +419,7 @@ void Cmd::build(){
                 +extra_cflag
             );
             log("[*] "+cmd);
-            system(cmd.c_str());
+            check_error(system(cmd.c_str()));
         }
     }
 
@@ -437,20 +438,16 @@ void Cmd::build(){
         +extra_cflag
     );
     log("[*] "+cmd);
-    int status;
-    status = system(cmd.c_str());
-    if(status != 0){
-            exit(status);
-    }
+    check_error(system(cmd.c_str()));
     log(
             "[+]Build Ok!  It is here { \n\t"+color(exe_file_path,GREEN)+" \n} "
     );
 }
 void Cmd::run_project(std::string args){
     this->build();
-    system(
+    check_error(system(
         (exe_file_path+ " "+args).c_str()
-        );
+        ));
 
 }
 
@@ -477,12 +474,12 @@ void Cmd::add(std::string star_path){
         "mkdir -p "+home+"/stars/"+star_name+"/"+star_version+" "
     );
     log("[*] "+cmd);
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
     cmd=(
         "cp -r "+star_path+"/* "+home+"/stars/"+star_name+"/"+star_version+"/ "
     );
     log("[*] "+cmd);
-    system(cmd.c_str());
+    check_error(system(cmd.c_str()));
     this->cat(star_name);
 }
 void Cmd::cat(std::string star){
@@ -506,7 +503,7 @@ void Cmd::remove(std::string star){
         std::string cmd(
             "rm "+home+"/stars/"+star+" -r"
         );
-        system(cmd.c_str());
+        check_error(system(cmd.c_str()));
         log("[+] The ("+star+") remove Ok!");
     }else{
         log("[-] The ("+star+") not found.");
