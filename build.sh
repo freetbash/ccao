@@ -1,0 +1,1 @@
+g++ -I./ source/public/*.cpp source/base/*.cpp source/ccao/*.cpp  source/utils/*.cpp main.cpp -g -std=c++11 -o ccao
