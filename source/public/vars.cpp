@@ -13,8 +13,6 @@ std::string help_text =
         +color("build",YELLOW)+"                // build your all apps and your main function. Please check your debug of ccao.toml\n\t"
         +color("run arg1 arg2 args",YELLOW)+"   // build and run your app in debug or release\n\t"
         +color("clean",YELLOW)+"                // clean your previous build lib or files\n\t"
-        +color("install",YELLOW)+"              // cp your target elf to /usr/local/bin/\n\t"
-        +color("install /usr/local/bin/ /other/bin/",BLUE)+" // install your release to targer path\n\n"
         +"Star commands:\n\t"
         +color("add star_path",BLUE)+"          // add a star to ~/.stars // you can ccao add . \n\t"
         +color("get star",BLUE)+"               // get a star from internet\n\t"

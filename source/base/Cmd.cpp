@@ -69,16 +69,6 @@ void Cmd::compare(){
         this->clean();
         exit(11);
     }
-    if(this->op == "install"){
-        if(this->args.size()==0){
-            this->install("/usr/local/bin/");
-        }else{
-            for(std::string out_path :this->args){
-                this->install(out_path);
-            }
-        }
-        exit(12);
-    }
     if(this->op == "build"){
         this->build();
         exit(3);
@@ -210,17 +200,6 @@ void Cmd::clean(){ // ok
     
 }
 
-void Cmd::install(std::string out_path){ // ok
-    this->check();
-    if(FileExists(config->exe_file_path)){
-        check_error(system(("sudo cp "+config->exe_file_path+out_path).c_str()));
-        log(color("[+] "+out_path,GREEN));
-    }else{
-        log(color("[-] please rebuild to get it!",RED));
-        log(config->exe_file_path);
-    }
-    
-}
 
 void Cmd::newapp(std::string app_name){ // ok
     this->check();
@@ -310,7 +289,7 @@ void Cmd::make(){ // ok
                 check_error(system(cmd.c_str()));
         }
     }
-    
+
     for(App app:project->apps){
         app.build();
     }
