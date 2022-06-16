@@ -3,7 +3,6 @@
 #include <base/Config.h>
 #include <utils/colors.h>
 
-
 std::string HTTP_VERSION="HTTP/1.1";
 std::string HTTP_DELIM="\r\n";
 

@@ -217,6 +217,7 @@ void Cmd::install(std::string out_path){ // ok
         log(color("[+] "+out_path,GREEN));
     }else{
         log(color("[-] please rebuild to get it!",RED));
+        log(config->exe_file_path);
     }
     
 }
@@ -245,9 +246,7 @@ void Cmd::build(){ // ok
         link_file += depend.a;
     }
 
-    for(App app:project->apps){
-        app.build();
-    }{
+    {
         log(color("[*]Building ("+config->name+")",HIGH_LIGHT));
         std::string cmd;
         for(auto cc: ls(config->root+"/source/"+config->name)){
@@ -264,6 +263,10 @@ void Cmd::build(){ // ok
             log("[*] "+cmd);
             check_error(system(cmd.c_str()));
         }
+    }
+
+    for(App app:project->apps){
+        app.build();
     }
 
     cmd=(
@@ -290,10 +293,7 @@ void Cmd::make(){ // ok
     this->check();
     std::string link_file("");
     std::string cmd;
-    for(App app:project->apps){
-        app.build();
-    }
-        {
+    {
             log(color("[*]Building ("+config->name+")",HIGH_LIGHT));
             for(auto cc: ls(config->root+"/source/"+config->name)){
                 cmd=(
@@ -310,6 +310,11 @@ void Cmd::make(){ // ok
                 check_error(system(cmd.c_str()));
         }
     }
+    
+    for(App app:project->apps){
+        app.build();
+    }
+
     for(std::string o:ls(config->root+"/temp")){
         link_file+=config->root+"/temp/"+o+" ";
     }

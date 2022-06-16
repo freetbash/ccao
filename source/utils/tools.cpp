@@ -146,7 +146,7 @@ void DOWNLOAD(std::string url,std::string file_path){
             inet_aton(getipbydomain(d_ip).c_str(), &server_addr.sin_addr);
             socklen_t server_addr_length = sizeof(server_addr); 
 
-            if(int c=connect(sfd, (struct sockaddr*)&server_addr, server_addr_length)<0){
+            if(connect(sfd, (struct sockaddr*)&server_addr, server_addr_length)<0){
                 exit(1);
             }else{
                 char data[1024];
@@ -179,7 +179,6 @@ void DOWNLOAD(std::string url,std::string file_path){
                     FILE *fp = fopen(file_path.c_str(),"w");
                     send(nsfd,head.c_str(),strlen(head.c_str()),0);
                     int i;
-                    bool flag=false;
                     long int total=0;
                     // fuck head
                     char ch;
