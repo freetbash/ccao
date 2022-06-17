@@ -173,7 +173,7 @@ int main(int argc, char *argv[]){
     std::stringstream fmt;
     {fmt << R""([project]
 name=")""<<project_name<<R""("
-#version="0"
+version="0"
 cppversion="c++11"
 debug=true
 cflag="-static "#额外参数 默认为空
