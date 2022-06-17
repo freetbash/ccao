@@ -98,6 +98,8 @@ void Cmd::compare(){
     if(this->op == "remove"){
         if(this->args.size()==1){
             this->remove(this->args[0]);
+        }else if(this->args.size()==0){
+            log(color("[-] ccao remove star ",RED));
         }else{
             this->remove(this->args[0],this->args[1]);
         }
@@ -321,7 +323,7 @@ void Cmd::add(std::string star_path){ // ok
     log("[*] "+cmd);
     check_error(system(cmd.c_str()));
     cmd=(
-        "cp -r "+config->root+"/* "+config->home+"/stars/"+config->name+"/"+config->version+"/ "
+        "cp -r "+config->root+" "+config->home+"/stars/"+config->name+"/"+config->version+"/ "
     );
     log("[*] "+cmd);
     check_error(system(cmd.c_str()));
@@ -349,7 +351,7 @@ void Cmd::list(){ // ok
 void Cmd::remove(std::string star){ // ok
     if(DirExists(config->home+"/stars/"+star)){
         std::string cmd(
-            "rm "+config->home+"/stars/"+star+" -r"
+            "rm "+config->home+"/stars/"+star+" -rf"
         );
         check_error(system(cmd.c_str()));
         log("[+] The ("+star+") remove Ok!");
