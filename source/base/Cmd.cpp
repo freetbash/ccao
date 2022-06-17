@@ -135,6 +135,7 @@ void Cmd::newproject(std::string project_name){ // ok
     c_mkdir(cwd+"/source");
     c_mkdir(cwd+"/source/"+project_name);
     c_mkdir(cwd+"/temp");
+    c_mkdir(cwd+"/test");
     c_mkdir(cwd+"/bin");
     
     // Main App
