@@ -113,6 +113,14 @@ void Cmd::compare(){
         }
         exit(1);
     }
+    if(this->op == "test"){
+        if(this->args.size()==0){
+            this->test();
+        }else{
+            this->test(this->args);
+        }
+        exit(12);
+    }
     this->show_help();
     log(color("[*] op: "+this->op,BLUE));
     exit(1);
@@ -137,6 +145,7 @@ void Cmd::newproject(std::string project_name){ // ok
     c_mkdir(cwd+"/temp");
     c_mkdir(cwd+"/test");
     c_mkdir(cwd+"/bin");
+    c_mkdir(cwd+"/bin/test");
     
     // Main App
     std::ofstream hello;
@@ -198,6 +207,7 @@ void Cmd::clean(){ // ok
         check_error(system(
             ("rm -rf "+config->root+"/bin/* ;"+"rm -rf "+config->root+"/temp/* ").c_str()
         ));
+        c_mkdir(config->root+"/bin/test");
     }else{
         log("[-] Here is not a project or star. ");
     }
@@ -374,4 +384,39 @@ void Cmd::get(std::string star){
 
 void Cmd::get(std::string star,std::string version){
 
+}
+
+void Cmd::test(std::string path){
+    this->check();
+    this->make();
+    log(color("[*]Testing ("+path+") ",BLUE));
+    std::string cmd("");
+    cmd=(
+        config->compiler
+        +config->root+"/test/"+path+" -I. "
+        +"-Xlinker '-(' "
+        // -Xlinker "-("  /home/bash/projects/chameleon/out/debug/libs/own/libviews.a -Xlinker "-)" 
+        +config->root+"/bin/lib"+config->name+".a "
+        +"-Xlinker '-)' "
+        +"-o "
+        +config->root+"/bin/"+path+".out -g -Wall -std="
+        +config->cppversion
+    );
+    log("[*] "+cmd);
+    check_error(system(cmd.c_str()));
+    cmd=config->root+"/bin/"+path+".out ";
+    log("[*] "+cmd);
+    check_error(system(cmd.c_str()));
+}
+
+void Cmd::test(std::vector<std::string> paths){
+    for(std::string path : paths){
+        this->test(path);
+    }
+}
+
+void Cmd::test(){
+    for(std::string each : ls(config->root+"/test")){
+        this->test(each);
+    }
 }

@@ -11,6 +11,8 @@ std::string help_text =
         +"Project commands:\n\t"
         +color("new project_name",BLUE)+"       // create a project\n\t"
         +color("build",YELLOW)+"                // build your all apps and your main function. Please check your debug of ccao.toml\n\t"
+        +color("test",YELLOW)+"                 // test files all in /test\n\t"
+        +color("test name1 name2",YELLOW)+"     // test targeted files all in /test\n\t"
         +color("run arg1 arg2 args",YELLOW)+"   // build and run your app in debug or release\n\t"
         +color("clean",YELLOW)+"                // clean your previous build lib or files\n\t"
         +"Star commands:\n\t"

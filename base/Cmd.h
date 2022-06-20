@@ -28,6 +28,10 @@ public:
     void remove(std::string star,std::string version);
     void list();
     
+    void test(std::string path);
+    void test(std::vector<std::string> paths);
+    void test();
+    
     
 
 };
