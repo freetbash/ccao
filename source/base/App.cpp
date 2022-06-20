@@ -1,6 +1,7 @@
 #include <base/App.h>
 #include <public/vars.h>
 #include <utils/tools.h>
+#include <utils/system.h>
 #include <public/public.h>
 
 App::App(std::string name){
@@ -10,20 +11,24 @@ App::App(std::string name){
 void App::build(){
         log(color("[*]Building ("+this->name+")",HIGH_LIGHT));
         std::string cmd;
-        for(auto cc: ls(config->root+"/source/"+this->name)){
+        std::vector<std::string> *_ = new std::vector<std::string>;
+        all_files(_,config->root+"/source/"+this->name);
+        for(auto cc: *_){
+
             cmd=(
                 config->compiler
                 +"-c "
-                +config->root+"/source/"+this->name+"/"+cc+" "
+                +cc+" "
                 +config->include_path
                 +"-o "
-                +config->root+"/temp/"+cc+".o "
+                +config->root+"/temp/"+split(cc,"\\/").back()+".o "
                 +config->cflag
                 +config->extra_cflag
             );
             log("[*] "+cmd);
             check_error(system(cmd.c_str()));
         }
+        free(_);
 
 }
 

@@ -1,5 +1,6 @@
 #include <base/Cmd.h>
 #include <utils/tools.h>
+#include <utils/system.h>
 #include <public/vars.h>
 #include <public/public.h>
 
@@ -205,9 +206,8 @@ void Cmd::clean(){ // ok
     this->check();
     if(config->is_project){
         check_error(system(
-            ("rm -rf "+config->root+"/bin/* ;"+"rm -rf "+config->root+"/temp/* ").c_str()
+            ("rm -rf "+config->root+"/temp/* ").c_str()
         ));
-        c_mkdir(config->root+"/bin/test");
     }else{
         log("[-] Here is not a project or star. ");
     }
@@ -242,20 +242,23 @@ void Cmd::build(){ // ok
     {
         log(color("[*]Building ("+config->name+")",HIGH_LIGHT));
         std::string cmd;
-        for(auto cc: ls(config->root+"/source/"+config->name)){
+        std::vector<std::string> *_ = new std::vector<std::string>;
+        all_files(_,config->root+"/source/"+config->name);
+        for(auto cc: *_){
             cmd=(
                 config->compiler
                 +"-c "
-                +config->root+"/source/"+config->name+"/"+cc+" "
+                +cc+" "
                 +config->include_path
                 +"-o "
-                +config->root+"/temp/"+cc+".o "
+                +config->root+"/temp/"+split(cc,"\\/").back()+".o "
                 +config->cflag
                 +config->extra_cflag
             );
             log("[*] "+cmd);
             check_error(system(cmd.c_str()));
         }
+        free(_);
     }
 
     for(App app:project->apps){
@@ -399,12 +402,12 @@ void Cmd::test(std::string path){
         +config->root+"/bin/lib"+config->name+".a "
         +"-Xlinker '-)' "
         +"-o "
-        +config->root+"/bin/"+path+".out -g -Wall -std="
+        +config->root+"/bin/test/"+path+".out -g -Wall -std="
         +config->cppversion
     );
     log("[*] "+cmd);
     check_error(system(cmd.c_str()));
-    cmd=config->root+"/bin/"+path+".out ";
+    cmd=config->root+"/bin/test/"+path+".out ";
     log("[*] "+cmd);
     check_error(system(cmd.c_str()));
 }

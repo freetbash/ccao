@@ -17,30 +17,16 @@ std::string read_file(std::string file_path){
     return tmp.str();
 }
 std::vector<std::string> ls(std::string path){
-    DIR *dp;
-    std::vector<std::string> dirs;
-    struct dirent *dirp;
-
-    if(
-        (dp=opendir(path.c_str())) == NULL)
-    {
-        log(path);
-        std::cout << "[-]List files failed . \n[-]Please check your permissions. "<<std::endl;
-        exit(-2);
-    }
-
-    while (
-        ((dirp=readdir(dp))!=NULL)
-    )
-    {
-        if(
-            (dirp->d_name != std::string(".") and dirp->d_name != std::string(".."))
-        ){
-            dirs.push_back(dirp->d_name);
+    std::vector<std::string> temp;
+    DIR *dir = opendir(path.c_str());
+    struct dirent *dp;
+    while((dp=readdir(dir))!=NULL){
+        if(dp->d_name != std::string(".") and dp->d_name != std::string("..")){
+            temp.push_back(dp->d_name);
         }
     }
-    closedir(dp);
-    return dirs;
+    closedir(dir);
+    return temp;
 }
 
 void c_mkdir(std::string path){
