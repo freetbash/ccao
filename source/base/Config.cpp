@@ -25,9 +25,9 @@ void CONFIG(){
         config->debug = toml::find<bool>(project_data, "debug");
         config->cppversion = toml::find<std::string>(project_data, "cppversion");
         config->extra_cflag = toml::find<std::string>(project_data, "cflag");
-        config->cpp = toml::find<bool>(project_data, "cpp");
+        config->compiler = toml::find<std::string>(project_data,"compiler");
+        config->compiler+=" ";
         config->ccache = toml::find<bool>(project_data, "ccache");
-        config->termux = toml::find<bool>(project_data, "termux");
         config->cflag = "";
         if(config->debug){
             config->cflag ="-g -Wall ";
@@ -35,24 +35,6 @@ void CONFIG(){
         }else{
             config->cflag = "-O3 ";
             config->exe_file_path = config->root+"/bin/"+config->name;
-        }
-        if(config->termux){
-            config->exe_file_path+="_aarch64 ";
-        }else{
-            config->exe_file_path+=" ";
-        }
-        if(config->cpp==true){
-            if(config->termux){
-                config->compiler="aarch64-linux-gnu-g++ ";
-            }else{
-                config->compiler="g++ ";
-            }
-        }else{
-            if(config->termux){
-                config->compiler="aarch64-linux-gnu-gcc ";
-            }else{
-                config->compiler="gcc ";
-            }
         }
         config->cflag+="-std="+config->cppversion+" ";// c++11
         

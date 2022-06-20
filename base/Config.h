@@ -10,8 +10,6 @@ public:
     std::string root;
     bool is_project;
     bool debug;
-    bool cpp;
-    bool termux;
     bool ccache;
     std::string cflag;
     std::string exe_file_path;
