@@ -264,9 +264,14 @@ void Cmd::build(){ // ok
         app.build();
     }
 
+    {
+        cmd=(config->compiler+"-c main.cpp "+config->include_path+"-o "+config->root+"/temp/main.o "+config->cflag+config->extra_cflag);
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+    }
     cmd=(
         config->compiler
-        +config->root+"/temp/* main.cpp "
+        +config->root+"/temp/* "
         +config->include_path
         +"-Xlinker '-(' "
         // -Xlinker "-("  /home/bash/projects/chameleon/out/debug/libs/own/libviews.a -Xlinker "-)" 
@@ -283,6 +288,7 @@ void Cmd::build(){ // ok
     log(
             "[+]Build Ok!  It is here { \n\t"+color(config->exe_file_path,GREEN)+" \n} "
     );
+    system("rm temp/main.o");
 }
 
 void Cmd::make(){ // ok
