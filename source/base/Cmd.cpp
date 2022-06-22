@@ -288,7 +288,7 @@ void Cmd::build(){ // ok
     log(
             "[+]Build Ok!  It is here { \n\t"+color(config->exe_file_path,GREEN)+" \n} "
     );
-    system("rm temp/main.o");
+    check_error(system("rm temp/main.o"));
 }
 
 void Cmd::make(){ // ok

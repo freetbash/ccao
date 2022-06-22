@@ -34,14 +34,15 @@ void App::build(){
 
 Depend::Depend(std::string name_version){
     std::vector<std::string> temp = split(name_version,"\\$");
+    this->path = config->home + "/stars/"+this->name + "/"+this->version;
     if(temp.size()==2){
-        if(DirExists(this->path)){
+        if(FDExist(this->path)){
             this->name = temp[0];
             this->version = temp[1];
             // /home/bash/.ccao/stars/test_star/version_1
             // /home/bash/.ccao/stars/test_star/version_1/test_star
             this->path = config->home + "/stars/"+this->name + "/"+this->version;
-            this->a = this->path +"/lib"+this->name+".a ";
+            this->a = this->path +"/"+this->name+"/bin/lib"+this->name+".a ";
         }else{
             std::cout << "please install "<< name_version <<std::endl;
             exit(123);
