@@ -337,18 +337,25 @@ void Cmd::run_project(std::string args){ // ok
 }
 
 void Cmd::add(std::string star_path){ // ok
-    this->check();
-    std::string cmd(
-        "mkdir -p "+config->home+"/stars/"+config->name+"/"+config->version+" "
-    );
-    log("[*] "+cmd);
-    check_error(system(cmd.c_str()));
-    cmd=(
-        "cp -r "+config->root+" "+config->home+"/stars/"+config->name+"/"+config->version+"/ "
-    );
-    log("[*] "+cmd);
-    check_error(system(cmd.c_str()));
-    this->cat(config->name);
+    if(FileExists(star_path+"/ccao.toml")){
+        const toml::value _ = toml::parse(star_path+"/ccao.toml");
+        const auto data = toml::find(_,"project");
+        std::string version = toml::find<std::string>(data,"version");
+        std::string name = toml::find<std::string>(data,"name");
+        std::string cmd(
+            "mkdir -p "+config->home+"/stars/"+name+"/"+version+" "
+        );
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+        cmd=(
+            "cp -rf "+star_path+" "+config->home+"/stars/"+name+"/"+version+"/ "
+        );
+        log("[*] "+cmd);
+        check_error(system(cmd.c_str()));
+        this->cat(config->name);
+    }else{
+        log("[-] "+star_path+" is not a ccao project!");
+    }
 }
 
 void Cmd::cat(std::string star){ //ok
