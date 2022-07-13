@@ -352,7 +352,7 @@ void Cmd::add(std::string star_path){ // ok
         );
         log("[*] "+cmd);
         check_error(system(cmd.c_str()));
-        this->cat(config->name);
+        this->cat(name);
     }else{
         log("[-] "+star_path+" is not a ccao project!");
     }
